@@ -1,1 +1,1 @@
-# jak-selectivity-screening
+# Natural Compound Screening for Selective JAK2 Inhibitors
