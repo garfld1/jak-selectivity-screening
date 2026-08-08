@@ -1,0 +1,13 @@
+2026-08-01 08:16:24 | INFO | Saving outputs to results/qsar
+2026-08-01 08:16:24 | INFO | Writing log to results/qsar/rf_scaffold_binary.log
+2026-08-01 08:16:24 | INFO | Saved CSV outputs
+2026-08-01 08:16:24 | INFO | Generating plots...
+2026-08-01 08:16:24 | INFO | Saved plots
+2026-08-01 08:16:24 | INFO | Summary over folds:
+2026-08-01 08:16:24 | INFO | R2:       0.7842 ± 0.0264
+2026-08-01 08:16:24 | INFO | RMSE:     0.3443 ± 0.0138
+2026-08-01 08:16:24 | INFO | MAE:      0.2495 ± 0.0096
+2026-08-01 08:16:24 | INFO | Spearman: 0.8780 ± 0.0071
+2026-08-01 08:16:24 | INFO | Cross-validation time: 199.5s
+2026-08-01 08:16:24 | INFO | Total run time: 200.8s
+2026-08-01 08:16:24 | INFO | Finished successfully

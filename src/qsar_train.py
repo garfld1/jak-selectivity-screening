@@ -9,12 +9,21 @@ Primary API (notebook):
 CLI (loads a saved qsar_df CSV/TSV):
 
     python src/qsar_train.py --input qsar_df.csv --model rf --split scaffold
+
+This version adds:
+- checkpoint logging
+- optional tqdm progress bars
+- timing for major stages
+- a run log saved alongside outputs
+- dummy baseline model
 """
 
 from __future__ import annotations
 
 import argparse
+import logging
 import os
+from time import perf_counter
 from typing import Literal
 
 import matplotlib.pyplot as plt
@@ -24,6 +33,7 @@ from rdkit import Chem
 from rdkit import RDLogger
 from rdkit.Chem import rdFingerprintGenerator
 from scipy.stats import spearmanr
+from sklearn.dummy import DummyRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
@@ -35,7 +45,13 @@ from xgboost import XGBRegressor
 
 RDLogger.DisableLog("rdApp.*")
 
-ModelName = Literal["linear", "rf", "svr", "xgb"]
+try:
+    from tqdm.auto import tqdm
+except ImportError:  # pragma: no cover
+    tqdm = None
+
+
+ModelName = Literal["linear", "rf", "svr", "xgb", "dummy"]
 SplitStrategy = Literal["random", "scaffold"]
 FpType = Literal["binary", "count"]
 
@@ -44,15 +60,54 @@ N_BITS = 2048
 RANDOM_STATE = 42
 
 
+def get_logger(name: str = "qsar_train") -> logging.Logger:
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    if not logger.handlers:
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.INFO)
+        formatter = logging.Formatter(
+            "%(asctime)s | %(levelname)s | %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
+
+    return logger
+
+
+LOGGER = get_logger()
+
+
+def add_file_logging(log_path: str) -> None:
+    """Add a file handler once per run."""
+    abs_log_path = os.path.abspath(log_path)
+    if any(
+        isinstance(h, logging.FileHandler) and getattr(h, "baseFilename", None) == abs_log_path
+        for h in LOGGER.handlers
+    ):
+        return
+
+    os.makedirs(os.path.dirname(abs_log_path), exist_ok=True)
+    file_handler = logging.FileHandler(abs_log_path, mode="w", encoding="utf-8")
+    file_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter(
+        "%(asctime)s | %(levelname)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    file_handler.setFormatter(formatter)
+    LOGGER.addHandler(file_handler)
+
+
 def validate_qsar_df(df: pd.DataFrame, split: SplitStrategy) -> None:
     required = {"smiles", "delta_pIC50"}
     missing = required - set(df.columns)
     if missing:
         raise ValueError(f"qsar_df missing required columns: {sorted(missing)}")
     if split == "scaffold" and "scaffold" not in df.columns:
-        raise ValueError(
-            'split="scaffold" requires a "scaffold" column in qsar_df'
-        )
+        raise ValueError('split="scaffold" requires a "scaffold" column in qsar_df')
 
 
 def _build_fp_generator():
@@ -64,6 +119,12 @@ def _build_fp_generator():
     )
 
 
+def _maybe_progress(iterable, total=None, desc=""):
+    if tqdm is None:
+        return iterable
+    return tqdm(iterable, total=total, desc=desc)
+
+
 def generate_morgan_fingerprints(
     smiles_list: list[str],
     fp_type: FpType,
@@ -72,14 +133,17 @@ def generate_morgan_fingerprints(
     fps = []
     valid_indices = []
 
-    for i, smi in enumerate(smiles_list):
+    iterator = _maybe_progress(enumerate(smiles_list), total=len(smiles_list), desc="Fingerprints")
+    for i, smi in iterator:
         mol = Chem.MolFromSmiles(smi)
         if mol is None:
             continue
+
         if fp_type == "binary":
             fp = fp_gen.GetFingerprintAsNumPy(mol)
         else:
             fp = fp_gen.GetCountFingerprintAsNumPy(mol)
+
         fps.append(fp)
         valid_indices.append(i)
 
@@ -109,10 +173,12 @@ def get_model(name: ModelName):
         )
     if name == "xgb":
         return XGBRegressor(random_state=RANDOM_STATE, n_jobs=-1)
+    if name == "dummy":
+        return DummyRegressor(strategy="mean")
     raise ValueError(f"Unknown model: {name}")
 
 
-def get_cv_splitter(strategy: SplitStrategy, n_splits: int, groups=None):
+def get_cv_splitter(strategy: SplitStrategy, n_splits: int):
     if strategy == "random":
         return KFold(
             n_splits=n_splits,
@@ -126,6 +192,9 @@ def get_cv_splitter(strategy: SplitStrategy, n_splits: int, groups=None):
 
 def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float]:
     rho, _ = spearmanr(y_true, y_pred)
+    if np.isnan(rho):
+        rho = 0.0
+
     return {
         "r2": float(r2_score(y_true, y_pred)),
         "rmse": float(np.sqrt(mean_squared_error(y_true, y_pred))),
@@ -149,9 +218,26 @@ def run_cross_validation(
     else:
         split_iter = splitter.split(X, y)
 
+    split_iter = _maybe_progress(
+        split_iter,
+        total=getattr(splitter, "n_splits", None),
+        desc="CV folds",
+    )
+
     for fold_idx, (train_idx, test_idx) in enumerate(split_iter, start=1):
+        fold_start = perf_counter()
+        LOGGER.info(
+            "Fold %d/%s | train=%d | test=%d | training model...",
+            fold_idx,
+            getattr(splitter, "n_splits", "?"),
+            len(train_idx),
+            len(test_idx),
+        )
+
         est = get_model(model_name)
         est.fit(X[train_idx], y[train_idx])
+
+        LOGGER.info("Fold %d | predicting...", fold_idx)
         y_pred = est.predict(X[test_idx])
         y_true = y[test_idx]
 
@@ -167,6 +253,17 @@ def run_cross_validation(
                     "y_pred": float(pred_val),
                 }
             )
+
+        elapsed = perf_counter() - fold_start
+        LOGGER.info(
+            "Fold %d done in %.1fs | R2=%.4f | RMSE=%.4f | MAE=%.4f | Spearman=%.4f",
+            fold_idx,
+            elapsed,
+            metrics["r2"],
+            metrics["rmse"],
+            metrics["mae"],
+            metrics["spearman"],
+        )
 
     predictions_df = pd.DataFrame(prediction_rows)
     return fold_metrics, predictions_df
@@ -264,10 +361,11 @@ def _output_prefix(
 
 
 def print_summary(summary: dict[str, float]) -> None:
-    print(f"R2:       {summary['r2_mean']:.4f} ± {summary['r2_std']:.4f}")
-    print(f"RMSE:     {summary['rmse_mean']:.4f} ± {summary['rmse_std']:.4f}")
-    print(f"MAE:      {summary['mae_mean']:.4f} ± {summary['mae_std']:.4f}")
-    print(f"Spearman: {summary['spearman_mean']:.4f} ± {summary['spearman_std']:.4f}")
+    LOGGER.info("Summary over folds:")
+    LOGGER.info("R2:       %.4f ± %.4f", summary["r2_mean"], summary["r2_std"])
+    LOGGER.info("RMSE:     %.4f ± %.4f", summary["rmse_mean"], summary["rmse_std"])
+    LOGGER.info("MAE:      %.4f ± %.4f", summary["mae_mean"], summary["mae_std"])
+    LOGGER.info("Spearman: %.4f ± %.4f", summary["spearman_mean"], summary["spearman_std"])
 
 
 def run_qsar_cv(
@@ -278,38 +376,81 @@ def run_qsar_cv(
     output_dir: str = "results/qsar",
     n_folds: int = 5,
 ) -> dict:
+    t0 = perf_counter()
+
+    LOGGER.info("=" * 70)
+    LOGGER.info("Starting QSAR cross-validation")
+    LOGGER.info(
+        "Rows: %d | Model: %s | Split: %s | Fingerprint: %s | Folds: %d",
+        len(qsar_df),
+        model,
+        split,
+        fp_type,
+        n_folds,
+    )
+    LOGGER.info("=" * 70)
+
     validate_qsar_df(qsar_df, split)
+    LOGGER.info("Input validation passed")
 
     smiles = qsar_df["smiles"].astype(str).tolist()
+
+    fp_start = perf_counter()
+    LOGGER.info("Generating Morgan fingerprints...")
     X, valid_indices = generate_morgan_fingerprints(smiles, fp_type)
+    fp_elapsed = perf_counter() - fp_start
 
     n_dropped = len(qsar_df) - len(valid_indices)
+    LOGGER.info("Fingerprint matrix shape: %s", X.shape)
+    LOGGER.info("Fingerprint generation took %.1fs", fp_elapsed)
     if n_dropped:
-        print(f"Dropped {n_dropped} rows with invalid SMILES")
+        LOGGER.info("Dropped %d rows with invalid SMILES", n_dropped)
 
+    LOGGER.info("Preparing targets...")
     y = qsar_df["delta_pIC50"].to_numpy(dtype=float)[valid_indices]
+
     groups = None
     if split == "scaffold":
+        LOGGER.info("Using scaffold groups for GroupKFold")
         groups = qsar_df["scaffold"].to_numpy()[valid_indices]
 
+    LOGGER.info("Creating CV splitter...")
     splitter = get_cv_splitter(split, n_folds)
+
+    cv_start = perf_counter()
     fold_metrics, predictions_df = run_cross_validation(
         X, y, model, splitter, groups=groups
     )
+    cv_elapsed = perf_counter() - cv_start
+
     summary = summarize_metrics(fold_metrics)
 
     os.makedirs(output_dir, exist_ok=True)
     prefix = _output_prefix(output_dir, model, split, fp_type)
+    log_path = f"{prefix}.log"
+    add_file_logging(log_path)
+
+    LOGGER.info("Saving outputs to %s", output_dir)
+    LOGGER.info("Writing log to %s", log_path)
 
     save_predictions(predictions_df, f"{prefix}_predictions.csv")
     save_metrics(fold_metrics, summary, f"{prefix}_metrics.csv")
+    LOGGER.info("Saved CSV outputs")
+
+    LOGGER.info("Generating plots...")
     plot_results(
         predictions_df["y_true"].to_numpy(),
         predictions_df["y_pred"].to_numpy(),
         prefix,
     )
+    LOGGER.info("Saved plots")
 
     print_summary(summary)
+
+    total_elapsed = perf_counter() - t0
+    LOGGER.info("Cross-validation time: %.1fs", cv_elapsed)
+    LOGGER.info("Total run time: %.1fs", total_elapsed)
+    LOGGER.info("Finished successfully")
 
     return {
         "fold_metrics": fold_metrics,
@@ -330,11 +471,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         default="results/qsar",
-        help="Directory for metrics, predictions, and plots (default: results/qsar)",
+        help="Directory for metrics, predictions, plots, and logs (default: results/qsar)",
     )
     parser.add_argument(
         "--model",
-        choices=["linear", "rf", "svr", "xgb"],
+        choices=["linear", "rf", "svr", "xgb", "dummy"],
         default="rf",
         help="Regression model (default: rf)",
     )

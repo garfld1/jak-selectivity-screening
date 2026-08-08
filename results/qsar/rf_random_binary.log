@@ -1,0 +1,52 @@
+2026-08-01 08:13:03 | INFO | Saving outputs to results/qsar
+2026-08-01 08:13:03 | INFO | Writing log to results/qsar/rf_random_binary.log
+2026-08-01 08:13:03 | INFO | Saved CSV outputs
+2026-08-01 08:13:03 | INFO | Generating plots...
+2026-08-01 08:13:03 | INFO | Saved plots
+2026-08-01 08:13:03 | INFO | Summary over folds:
+2026-08-01 08:13:03 | INFO | R2:       0.8292 ± 0.0150
+2026-08-01 08:13:03 | INFO | RMSE:     0.3081 ± 0.0113
+2026-08-01 08:13:03 | INFO | MAE:      0.2195 ± 0.0068
+2026-08-01 08:13:03 | INFO | Spearman: 0.9011 ± 0.0086
+2026-08-01 08:13:03 | INFO | Cross-validation time: 194.7s
+2026-08-01 08:13:03 | INFO | Total run time: 196.0s
+2026-08-01 08:13:03 | INFO | Finished successfully
+2026-08-01 08:13:03 | INFO | ======================================================================
+2026-08-01 08:13:03 | INFO | Starting QSAR cross-validation
+2026-08-01 08:13:03 | INFO | Rows: 5779 | Model: rf | Split: scaffold | Fingerprint: binary | Folds: 5
+2026-08-01 08:13:03 | INFO | ======================================================================
+2026-08-01 08:13:03 | INFO | Input validation passed
+2026-08-01 08:13:03 | INFO | Generating Morgan fingerprints...
+2026-08-01 08:13:04 | INFO | Fingerprint matrix shape: (5779, 2048)
+2026-08-01 08:13:04 | INFO | Fingerprint generation took 1.1s
+2026-08-01 08:13:04 | INFO | Preparing targets...
+2026-08-01 08:13:04 | INFO | Using scaffold groups for GroupKFold
+2026-08-01 08:13:04 | INFO | Creating CV splitter...
+2026-08-01 08:13:04 | INFO | Fold 1/5 | train=4623 | test=1156 | training model...
+2026-08-01 08:13:46 | INFO | Fold 1 | predicting...
+2026-08-01 08:13:46 | INFO | Fold 1 done in 41.7s | R2=0.7850 | RMSE=0.3264 | MAE=0.2335 | Spearman=0.8854
+2026-08-01 08:13:46 | INFO | Fold 2/5 | train=4623 | test=1156 | training model...
+2026-08-01 08:14:27 | INFO | Fold 2 | predicting...
+2026-08-01 08:14:27 | INFO | Fold 2 done in 40.8s | R2=0.7697 | RMSE=0.3512 | MAE=0.2557 | Spearman=0.8711
+2026-08-01 08:14:27 | INFO | Fold 3/5 | train=4623 | test=1156 | training model...
+2026-08-01 08:15:08 | INFO | Fold 3 | predicting...
+2026-08-01 08:15:08 | INFO | Fold 3 done in 41.0s | R2=0.7947 | RMSE=0.3496 | MAE=0.2530 | Spearman=0.8792
+2026-08-01 08:15:08 | INFO | Fold 4/5 | train=4623 | test=1156 | training model...
+2026-08-01 08:15:46 | INFO | Fold 4 | predicting...
+2026-08-01 08:15:46 | INFO | Fold 4 done in 38.5s | R2=0.8208 | RMSE=0.3337 | MAE=0.2480 | Spearman=0.8842
+2026-08-01 08:15:46 | INFO | Fold 5/5 | train=4624 | test=1155 | training model...
+2026-08-01 08:16:24 | INFO | Fold 5 | predicting...
+2026-08-01 08:16:24 | INFO | Fold 5 done in 37.4s | R2=0.7506 | RMSE=0.3603 | MAE=0.2573 | Spearman=0.8702
+2026-08-01 08:16:24 | INFO | Saving outputs to results/qsar
+2026-08-01 08:16:24 | INFO | Writing log to results/qsar/rf_scaffold_binary.log
+2026-08-01 08:16:24 | INFO | Saved CSV outputs
+2026-08-01 08:16:24 | INFO | Generating plots...
+2026-08-01 08:16:24 | INFO | Saved plots
+2026-08-01 08:16:24 | INFO | Summary over folds:
+2026-08-01 08:16:24 | INFO | R2:       0.7842 ± 0.0264
+2026-08-01 08:16:24 | INFO | RMSE:     0.3443 ± 0.0138
+2026-08-01 08:16:24 | INFO | MAE:      0.2495 ± 0.0096
+2026-08-01 08:16:24 | INFO | Spearman: 0.8780 ± 0.0071
+2026-08-01 08:16:24 | INFO | Cross-validation time: 199.5s
+2026-08-01 08:16:24 | INFO | Total run time: 200.8s
+2026-08-01 08:16:24 | INFO | Finished successfully

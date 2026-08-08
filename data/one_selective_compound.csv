@@ -1,0 +1,59 @@
+,smiles,JAK1_IC50_nM,JAK2_IC50_nM,matched_assay_description,ligand_id,PDBQT
+1405,CN(C)C1CCN(c2nc(-c3cnn4ccccc34)nc(N[C@H]3CC[C@H](CC#N)CC3)c2F)CC1,220.0,1.0,"In Vitro JAK kinase Assays: The catalytic domains of human JAK1 (aa 850-1154), JAK2 (aa 826-1132), JAK3 (aa 795-1124) and Tyk2 (aa 871-1187) were expressed as N-terminal GST-fusion proteins using a baculovirus expression system and were purchased from Carna Biosciences. The enzymatic activity was assayed using as substrate a biotinylated peptide, poly (GT)-Biotin (CisBio). The peptide concentration in the reactions was 60 nM for JAK1, 20 nM for JAK2, 140 nM for JAK3 and 50 nM for Tyk2. The degree of phosphorylation was detected by TR-FRET (time-resolved fluorescence energy transfer).IC50s of compounds were measured for each kinase in a reaction mixture containing the enzyme, ATP and the peptide in 8 mM MOPS (pH 7.0), 10 mM MgCl2, 0.05% β-mercaptoethanol, 0.45 mg/ml BSA. The ATP concentration in the reactions was 3 μM for JAK1, 0.2 μM for JAK2, 0.6 μM for JAK3 and 1.8 μM for Tyk2. The enzymatic reactions took place for 30 minutes at room temperature. Then, the reactions were stopped with 20 μL of quench detection buffer (50 mM HEPES, 0.5 M KF, EDTA 0.25 M, 0.1% (w/v) BSA, pH 7.5) containing 0.115 μg/mL of anti-phosphoTyr (PT66)-Cryptate (CisBio) and a variable concentration of SA-XL665 (CisBio) to keep the SA-B ratio constant. Incubate for 3 h and read on Victor 2V spectrofluorometer (Perkin Elmer) set to read fluorescence resonance energy transfer.",6c23b1a47748edc80d0778923112602a76e9f2560f5e700c83ab7a08234869d8,"REMARK SMILES CN(C)C1CCN(c2nc(-c3cnn4ccccc34)nc(N[C@H]3CC[C@H](CC#N)CC3)c2F)CC1
+REMARK SMILES IDX 8 1 9 2 10 3 20 4 21 5 32 6 33 7 7 8 4 9 5 10 35 11 6 12
+REMARK SMILES IDX 34 13 2 14 1 15 3 16 11 17 12 18 19 19 13 20 18 21 14 22
+REMARK SMILES IDX 17 23 15 24 16 25 22 26 23 28 31 29 24 30 30 31 25 32 26 33
+REMARK SMILES IDX 27 34 28 35 29 36
+REMARK H PARENT 22 27
+ROOT
+ATOM      1  C   UNL     1       1.369   0.115  -0.315  1.00  0.00     0.171 A 
+ATOM      2  N   UNL     1       1.244   1.374   0.150  1.00  0.00    -0.208 NA
+ATOM      3  C   UNL     1       0.048   1.976   0.029  1.00  0.00     0.167 A 
+ATOM      4  N   UNL     1      -1.048   1.420  -0.508  1.00  0.00    -0.208 NA
+ATOM      5  C   UNL     1      -0.925   0.170  -0.979  1.00  0.00     0.168 A 
+ATOM      6  C   UNL     1       0.283  -0.513  -0.923  1.00  0.00     0.207 A 
+ATOM      7  F   UNL     1       0.409  -1.735  -1.465  1.00  0.00    -0.199 F 
+ENDROOT
+BRANCH   1   8
+ATOM      8  N   UNL     1       2.614  -0.502  -0.185  1.00  0.00    -0.354 N 
+ATOM      9  C   UNL     1       5.037  -1.648   1.066  1.00  0.00     0.059 C 
+ATOM     10  C   UNL     1       5.038  -0.446   0.106  1.00  0.00     0.040 C 
+ATOM     11  C   UNL     1       3.627  -2.255   1.231  1.00  0.00     0.040 C 
+ATOM     12  C   UNL     1       3.734   0.337   0.241  1.00  0.00     0.120 C 
+ATOM     13  C   UNL     1       2.690  -1.945   0.066  1.00  0.00     0.120 C 
+BRANCH   9  14
+ATOM     14  N   UNL     1       6.069  -2.677   0.808  1.00  0.00    -0.306 NA
+ATOM     15  C   UNL     1       7.426  -2.153   0.970  1.00  0.00     0.105 C 
+ATOM     16  C   UNL     1       5.944  -3.361  -0.478  1.00  0.00     0.105 C 
+ENDBRANCH   9  14
+ENDBRANCH   1   8
+BRANCH   3  17
+ATOM     17  C   UNL     1      -0.042   3.326   0.547  1.00  0.00     0.065 A 
+ATOM     18  C   UNL     1       0.920   4.037   1.293  1.00  0.00     0.148 A 
+ATOM     19  C   UNL     1      -1.089   4.222   0.415  1.00  0.00     0.077 A 
+ATOM     20  N   UNL     1       0.533   5.268   1.626  1.00  0.00    -0.176 NA
+ATOM     21  C   UNL     1      -2.373   4.218  -0.214  1.00  0.00     0.029 C 
+ATOM     22  N   UNL     1      -0.707   5.391   1.087  1.00  0.00    -0.240 N 
+ATOM     23  C   UNL     1      -3.162   5.306  -0.139  1.00  0.00     0.004 C 
+ATOM     24  C   UNL     1      -1.537   6.512   1.158  1.00  0.00     0.113 C 
+ATOM     25  C   UNL     1      -2.744   6.501   0.571  1.00  0.00     0.020 C 
+ENDBRANCH   3  17
+BRANCH   5  26
+ATOM     26  N   UNL     1      -2.098  -0.328  -1.533  1.00  0.00    -0.365 N 
+ATOM     27  H   UNL     1      -2.822   0.357  -1.338  1.00  0.00     0.162 HD
+BRANCH  26  28
+ATOM     28  C   UNL     1      -2.489  -1.725  -1.335  1.00  0.00     0.080 C 
+ATOM     29  C   UNL     1      -2.746  -2.057   0.147  1.00  0.00     0.025 C 
+ATOM     30  C   UNL     1      -3.733  -2.003  -2.189  1.00  0.00     0.025 C 
+ATOM     31  C   UNL     1      -4.226  -2.127   0.538  1.00  0.00     0.007 C 
+ATOM     32  C   UNL     1      -4.991  -1.269  -1.709  1.00  0.00     0.007 C 
+ATOM     33  C   UNL     1      -5.054  -1.057  -0.183  1.00  0.00     0.003 C 
+BRANCH  33  34
+ATOM     34  C   UNL     1      -6.520  -1.030   0.287  1.00  0.00     0.123 C 
+ATOM     35  C   UNL     1      -6.652  -0.570   1.677  1.00  0.00     0.062 C 
+ATOM     36  N   UNL     1      -6.756  -0.212   2.776  1.00  0.00    -0.198 NA
+ENDBRANCH  33  34
+ENDBRANCH  26  28
+ENDBRANCH   5  26
+TORSDOF 6
+"

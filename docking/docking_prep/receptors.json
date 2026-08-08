@@ -1,0 +1,38 @@
+{
+  "JAK1": {
+    "pdbqt": "docking/docking_prep/prepared_receptors/pdbqt/JAK1.pdbqt",
+    "pdb": "docking/docking_prep/prepared_receptors/pdb/JAK1.pdb",
+    "center": [
+      6.913700103759766,
+      57.60139846801758,
+      0.8156000375747681
+    ],
+    "size": [
+      20,
+      20,
+      20
+    ],
+    "exhaustiveness": 8,
+    "detected_ligand_resname": "0Q2",
+    "detected_ligand_chain": "A",
+    "detected_ligand_natoms": 20
+  },
+  "JAK2": {
+    "pdbqt": "docking/docking_prep/prepared_receptors/pdbqt/JAK2.pdbqt",
+    "pdb": "docking/docking_prep/prepared_receptors/pdb/JAK2.pdb",
+    "center": [
+      57.83145523071289,
+      9.40494441986084,
+      5.232999801635742
+    ],
+    "size": [
+      20,
+      20,
+      20
+    ],
+    "exhaustiveness": 8,
+    "detected_ligand_resname": "1M3",
+    "detected_ligand_chain": "A",
+    "detected_ligand_natoms": 36
+  }
+}
