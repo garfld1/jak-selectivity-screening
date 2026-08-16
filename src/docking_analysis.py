@@ -4,17 +4,36 @@ docking_analysis_fixed.py
 Step 3 of 3 in the JAK docking pipeline.
 
 Key fixes vs the original version:
-1) Strip receptor hetero-residues before PLIP so PTR/co-crystal ligands do not
-   get mistaken for the docked ligand.
+1) Strip receptor hetero-residues by RESIDUE NAME (not by ATOM/HETATM record
+   type) before PLIP so PTR/co-crystal ligands do not get mistaken for the
+   docked ligand. Modified residues like phosphotyrosine are frequently
+   emitted as ATOM records by receptor-prep tools, so filtering on record
+   type alone lets them through.
 2) Do not round-trip the docked pose through RDKit for the final complex PDB.
    Instead, convert the top-pose PDBQT directly to a proper HETATM ligand PDB.
 3) Preserve a real chain ID and residue name for the docked ligand so PLIP can
    recognize it as a ligand.
-4) Make file paths relative to the script location by default.
+4) Only write a single TER/END pair at the very end of the merged complex
+   file. Previously the protein block ended in its own END record and the
+   ligand block was appended after it, so parsers that stop reading at END
+   (including OpenBabel, which PLIP uses for bond perception) never saw the
+   ligand at all -- this was the actual root cause of PLIP reporting PTR
+   contacts and the ligand rendering as broken/disconnected.
+5) Map AutoDock/Vina PDBQT atom types (HD, HS, NA, OA, SA, A, ...) to correct
+   PDB element symbols via an explicit table instead of blindly title-casing
+   the type string, which previously produced invalid/wrong elements (e.g.
+   NA -> "Na" sodium, SA -> "Sa", HS -> "Hs" hassium) and broke bond
+   perception in viewers and in PLIP itself.
+6) Make file paths relative to the script location by default.
+7) Parallelize across (ligand, isoform) jobs with a process pool (--workers).
+   Each job is fully independent (its own temp dir, its own output file), so
+   this scales close to linearly with core count. Uses multiprocessing, not
+   threading, since PLIP's global config state and OpenBabel bindings are
+   safer isolated per-process than shared across threads in one interpreter.
 
 Reads:
   - receptors.json         (prepared receptor paths + docking box center/size)
-  - ligand CSV             (ligand_id + PDBQT columns)
+  - ligand CSV              (ligand_id + PDBQT columns)
 
 For every ligand x isoform pair:
   1) Dock with AutoDock Vina
@@ -30,12 +49,16 @@ column per residue seen in that isoform.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures as cf
 import json
+import multiprocessing
 import os
 import re
 import shutil
 import subprocess
 import tempfile
+import uuid
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -59,14 +82,50 @@ LIGAND_RESNAME = "LIG"
 LIGAND_CHAIN_ID = "Z"
 LIGAND_RESSEQ = 1
 
+# Residue names to strip from the receptor before merging with the docked
+# ligand. These are modified/non-canonical residues and crystallographic
+# extras that PLIP can otherwise mistake for the docked ligand. Extend this
+# set if your receptors carry other modified residues or cofactors.
+EXCLUDE_RESNAMES = {
+    "PTR",  # phosphotyrosine
+    "SEP",  # phosphoserine
+    "TPO",  # phosphothreonine
+    "HOH",  # water
+    "MSE",  # selenomethionine (usually fine to keep, but excluded by default)
+}
+
+# AutoDock/Vina PDBQT atom types -> correct PDB element symbol.
+# Blindly title-casing the raw type string is wrong for several common types
+# (e.g. "NA" is an N acceptor, not sodium; "SA" is an S acceptor, not
+# tantalum's neighbor; "HD"/"HS" are polar/non-polar hydrogens, not the
+# elements Hd/Hs).
+AD_TYPE_TO_ELEMENT = {
+    "A": "C", "C": "C", "N": "N", "NA": "N", "NS": "N",
+    "O": "O", "OA": "O", "OS": "O", "S": "S", "SA": "S",
+    "H": "H", "HD": "H", "HS": "H",
+    "F": "F", "CL": "Cl", "BR": "Br", "I": "I",
+    "MG": "Mg", "CA": "Ca", "MN": "Mn", "FE": "Fe", "ZN": "Zn",
+    "P": "P", "SI": "Si", "B": "B",
+}
+
+# Maps (attribute name on a PLIP PLInteraction object) -> (interaction label).
+# NOTE: PLIP splits several interaction types into two attributes (donor vs.
+# acceptor side) rather than one combined list. Verified against the
+# installed plip package (plip/structure/detection.py); getattr() on a wrong
+# name returns None silently, so a mismatch here does not raise an error --
+# it just quietly drops that whole interaction type from every result.
 PLIP_ATTRS = {
-    "hbonds_ligand": "hydrogen_bond",
+    "hbonds_pdon": "hydrogen_bond",         # protein is the H-bond donor
+    "hbonds_ldon": "hydrogen_bond",         # ligand is the H-bond donor
     "hydrophobic_contacts": "hydrophobic",
     "pistacking": "pi_stacking",
-    "saltbridges_ligand": "salt_bridge",
-    "halogenbonds": "halogen_bond",
-    "waterbridges": "water_bridge",
-    "metal_complex": "metal_complex",
+    "pication_laro": "pi_cation",           # ligand aromatic ring, protein cation
+    "pication_paro": "pi_cation",           # protein aromatic ring, ligand cation
+    "saltbridge_lneg": "salt_bridge",       # ligand carries the negative charge
+    "saltbridge_pneg": "salt_bridge",       # protein carries the negative charge
+    "halogen_bonds": "halogen_bond",
+    "water_bridges": "water_bridge",
+    "metal_complexes": "metal_complex",
 }
 
 # ============================================================
@@ -143,17 +202,17 @@ def parse_vina_score_from_log(log_path: str) -> Optional[float]:
 def _infer_element(atom_name: str, line: str) -> str:
     """
     Best-effort element inference for a PDBQT atom line.
-    Prefer the explicit atom-type token if available; otherwise infer from
-    the atom name.
+    Prefer the explicit AutoDock atom-type token, mapped through
+    AD_TYPE_TO_ELEMENT, since that type encodes hybridization/H-bonding role
+    rather than the element directly (e.g. "NA" = N acceptor, not sodium).
+    Fall back to inferring from the atom name only if the type token isn't
+    recognized.
     """
     tail = line[66:].strip().split()
     if tail:
-        token = tail[-1].strip()
-        # common Vina atom types
-        token = re.sub(r"[^A-Za-z]", "", token)
-        if token:
-            token = token[:2].title()
-            return token
+        token = re.sub(r"[^A-Za-z]", "", tail[-1]).upper()
+        if token in AD_TYPE_TO_ELEMENT:
+            return AD_TYPE_TO_ELEMENT[token]
 
     name = re.sub(r"[^A-Za-z]", "", atom_name).strip()
     if not name:
@@ -172,6 +231,12 @@ def pdbqt_pose_to_ligand_pdb_string(
     Convert the top docked pose PDBQT into a clean HETATM-only PDB ligand block.
     This preserves coordinates but intentionally normalizes residue/chain naming
     so PLIP sees the docked molecule as the ligand.
+
+    Note: this returns a block WITHOUT a leading END record from any prior
+    section, and includes its own trailing TER/END. Callers must make sure no
+    earlier END record precedes this block in the same file, or downstream
+    parsers (including PLIP's OpenBabel-based bond perception) will stop
+    reading before ever seeing these atoms.
     """
     if not os.path.exists(pdbqt_path) or os.path.getsize(pdbqt_path) < 50:
         raise RuntimeError(f"Vina output missing/empty: {pdbqt_path}")
@@ -223,17 +288,40 @@ def pdbqt_pose_to_ligand_pdb_string(
 
 def protein_only_pdb(pdb_text: str) -> str:
     """
-    Keep only protein ATOM records from the receptor PDB.
-    This removes receptor HETATM records such as PTR, waters, cofactors, etc.,
-    which otherwise can be mistaken by PLIP for the ligand.
+    Keep only protein ATOM/HETATM records from the receptor PDB, filtered by
+    residue name rather than by record type. Modified residues such as
+    phosphotyrosine (PTR) are frequently emitted as ATOM records (not
+    HETATM) by receptor-prep tools so they stay part of the polypeptide
+    chain, so filtering on the record type alone does not remove them. This
+    also drops waters and other excluded hetero groups.
+
+    Deliberately does NOT append a TER/END record -- the caller is
+    responsible for writing exactly one TER/END pair after the ligand block
+    is appended, so no parser stops reading before reaching the ligand.
     """
     keep: List[str] = []
     for line in pdb_text.splitlines():
-        if line.startswith("ATOM"):
+        if line.startswith(("ATOM", "HETATM")):
+            resname = line[17:20].strip()
+            if resname in EXCLUDE_RESNAMES:
+                continue
             keep.append(line)
-    keep.append("TER")
-    keep.append("END")
     return "\n".join(keep) + "\n"
+
+def write_complex_pdb(protein_pdb_text: str, ligand_pdb_text: str, out_path: str) -> None:
+    """
+    Write receptor + ligand into a single, well-formed complex PDB with
+    exactly one TER/END pair at the very end. protein_pdb_text must NOT
+    already contain an END record (see protein_only_pdb), otherwise parsers
+    that stop at the first END -- including OpenBabel, which PLIP relies on
+    for bond perception -- will silently never see the ligand atoms.
+    """
+    with open(out_path, "w") as f:
+        f.write(protein_pdb_text)
+        if not protein_pdb_text.rstrip().endswith("TER"):
+            f.write("TER\n")
+        # ligand_pdb_text already ends with its own TER/END
+        f.write(ligand_pdb_text)
 
 # ============================================================
 # PLIP ANALYSIS
@@ -265,6 +353,88 @@ def run_plip_all_residues(complex_pdb: str) -> List[str]:
     return sorted(interacting)
 
 # ============================================================
+# PER-JOB WORKER (runs inside a worker process)
+# ============================================================
+
+@dataclass
+class DockJob:
+    """One (ligand, isoform) unit of work. Must be picklable to cross the
+    process-pool boundary, so it carries plain data only -- no open file
+    handles, no PDBComplex objects, etc."""
+    ligand_id: str
+    ligand_pdbqt: str
+    iso_name: str
+    receptor: Dict
+    exhaustiveness: int
+    cpu_per_job: int
+
+def _run_one_job(job: DockJob) -> Dict:
+    """
+    Dock one ligand against one isoform and run PLIP on the result. This is a
+    module-level function (not a method/closure) so it can be pickled and
+    sent to a separate worker process by ProcessPoolExecutor.
+
+    Each call gets its OWN private temp directory (tempfile.mkdtemp) rather
+    than sharing one workspace_root across jobs, so concurrent workers never
+    write into each other's files -- important now that jobs run in parallel
+    instead of one at a time. The saved complex filename also gets a short
+    random suffix for the same reason: two different ligand_ids that happen
+    to share their first 8 characters would otherwise be able to race on the
+    same output path when run concurrently.
+    """
+    job_dir = Path(tempfile.mkdtemp(prefix=f"vina_{job.iso_name}_"))
+    lig_in = job_dir / "lig.pdbqt"
+    out_pdbqt = job_dir / "docked.pdbqt"
+    log_path = job_dir / "vina.log"
+    unique_suffix = uuid.uuid4().hex[:6]
+    saved_complex_path = COMPLEX_OUT_DIR / f"{job.ligand_id[:8]}_{job.iso_name}_{unique_suffix}_complex.pdb"
+
+    try:
+        with open(lig_in, "w") as f:
+            f.write(job.ligand_pdbqt)
+
+        dock_with_vina(
+            str(lig_in),
+            job.receptor["pdbqt"],
+            str(out_pdbqt),
+            str(log_path),
+            center=tuple(job.receptor["center"]),
+            size=tuple(job.receptor["size"]),
+            exhaustiveness=job.exhaustiveness,
+            cpu=job.cpu_per_job,
+        )
+
+        score = parse_vina_score_from_log(str(log_path))
+        ligand_pose_pdb = pdbqt_pose_to_ligand_pdb_string(str(out_pdbqt))
+
+        with open(job.receptor["pdb"], "r") as f_rec:
+            receptor_pdb_text = f_rec.read()
+        protein_pdb_text = protein_only_pdb(receptor_pdb_text)
+
+        write_complex_pdb(protein_pdb_text, ligand_pose_pdb, str(saved_complex_path))
+
+        residues = run_plip_all_residues(str(saved_complex_path))
+
+        return {
+            "ligand_id": job.ligand_id,
+            "iso_name": job.iso_name,
+            "vina_score": score,
+            "residues": set(residues),
+            "error": None,
+        }
+
+    except Exception as e:
+        return {
+            "ligand_id": job.ligand_id,
+            "iso_name": job.iso_name,
+            "vina_score": None,
+            "residues": set(),
+            "error": str(e),
+        }
+    finally:
+        shutil.rmtree(job_dir, ignore_errors=True)
+
+# ============================================================
 # MAIN DOCKING + ANALYSIS LOOP
 # ============================================================
 
@@ -273,75 +443,73 @@ def dock_and_analyze_all(
     receptor_map: Dict[str, Dict],
     ligand_id_col: str = "ligand_id",
     pdbqt_col: str = "PDBQT",
+    workers: int = 1,
+    cpu_per_job: int = 1,
 ) -> Dict[str, pd.DataFrame]:
+    """
+    workers: number of (ligand, isoform) jobs to run concurrently, each in
+        its own process. workers=1 reproduces the original fully-sequential
+        behavior. Set this close to os.cpu_count() for maximum throughput,
+        leaving a core or two free for the OS/orchestration.
+    cpu_per_job: threads Vina itself uses per docking call (its --cpu flag).
+        Keep this small (1-2) when workers > 1 -- workers * cpu_per_job
+        competing for the same physical cores causes oversubscription and
+        can make things SLOWER than fewer, cheaper jobs run more of at once.
+    """
     COMPLEX_OUT_DIR.mkdir(parents=True, exist_ok=True)
-    workspace_root = Path(tempfile.mkdtemp(prefix="vina_workspace_"))
 
+    jobs: List[DockJob] = []
     raw_results: Dict[str, List[Dict]] = {iso: [] for iso in receptor_map}
-    total_jobs = len(ligand_df) * len(receptor_map)
-    print(f"Running {total_jobs} docking jobs ({len(ligand_df)} ligands x {len(receptor_map)} isoforms)...")
 
-    try:
-        with tqdm.tqdm(total=total_jobs, desc="DOCKING") as pbar:
-            for _, row in ligand_df.iterrows():
-                lig_id = str(row[ligand_id_col])
-                lig_pdbqt_str = row[pdbqt_col]
+    for _, row in ligand_df.iterrows():
+        lig_id = str(row[ligand_id_col])
+        lig_pdbqt_str = row[pdbqt_col]
 
-                if not isinstance(lig_pdbqt_str, str) or not lig_pdbqt_str.strip():
-                    print(f"[!] Skipping {lig_id}: no PDBQT available.")
-                    for iso_name in receptor_map:
-                        raw_results[iso_name].append({"ligand_id": lig_id, "vina_score": None, "residues": set()})
-                        pbar.update(1)
-                    continue
+        if not isinstance(lig_pdbqt_str, str) or not lig_pdbqt_str.strip():
+            print(f"[!] Skipping {lig_id}: no PDBQT available.")
+            for iso_name in receptor_map:
+                raw_results[iso_name].append({"ligand_id": lig_id, "vina_score": None, "residues": set()})
+            continue
 
-                for iso_name, rec in receptor_map.items():
-                    job_dir = workspace_root / f"{lig_id[:8]}_{iso_name}"
-                    job_dir.mkdir(parents=True, exist_ok=True)
+        for iso_name, rec in receptor_map.items():
+            jobs.append(DockJob(
+                ligand_id=lig_id,
+                ligand_pdbqt=lig_pdbqt_str,
+                iso_name=iso_name,
+                receptor=rec,
+                exhaustiveness=rec.get("exhaustiveness", DEFAULT_EXHAUSTIVENESS),
+                cpu_per_job=cpu_per_job,
+            ))
 
-                    lig_in = job_dir / "lig.pdbqt"
-                    out_pdbqt = job_dir / "docked.pdbqt"
-                    log_path = job_dir / "vina.log"
-                    saved_complex_path = COMPLEX_OUT_DIR / f"{lig_id[:8]}_{iso_name}_complex.pdb"
+    print(
+        f"Running {len(jobs)} docking jobs "
+        f"({len(ligand_df)} ligands x {len(receptor_map)} isoforms) "
+        f"with {workers} parallel worker process(es), {cpu_per_job} vina cpu(s) each..."
+    )
 
-                    try:
-                        with open(lig_in, "w") as f:
-                            f.write(lig_pdbqt_str)
-
-                        dock_with_vina(
-                            str(lig_in),
-                            rec["pdbqt"],
-                            str(out_pdbqt),
-                            str(log_path),
-                            center=tuple(rec["center"]),
-                            size=tuple(rec["size"]),
-                            exhaustiveness=rec.get("exhaustiveness", DEFAULT_EXHAUSTIVENESS),
-                        )
-
-                        score = parse_vina_score_from_log(str(log_path))
-                        ligand_pose_pdb = pdbqt_pose_to_ligand_pdb_string(str(out_pdbqt))
-
-                        with open(rec["pdb"], "r") as f_rec:
-                            receptor_pdb_text = f_rec.read()
-                        protein_pdb_text = protein_only_pdb(receptor_pdb_text)
-
-                        with open(saved_complex_path, "w") as f_comp:
-                            f_comp.write(protein_pdb_text)
-                            f_comp.write(ligand_pose_pdb)
-
-                        residues = run_plip_all_residues(str(saved_complex_path))
-
-                        raw_results[iso_name].append(
-                            {"ligand_id": lig_id, "vina_score": score, "residues": set(residues)}
-                        )
-
-                    except Exception as e:
-                        print(f"\nERROR docking {lig_id} x {iso_name}: {e}")
-                        raw_results[iso_name].append({"ligand_id": lig_id, "vina_score": None, "residues": set()})
-                    finally:
-                        shutil.rmtree(job_dir, ignore_errors=True)
-                        pbar.update(1)
-    finally:
-        shutil.rmtree(workspace_root, ignore_errors=True)
+    if workers <= 1:
+        # Sequential path -- also used when the caller explicitly wants the
+        # original one-job-at-a-time behavior (e.g. for debugging).
+        with tqdm.tqdm(total=len(jobs), desc="DOCKING") as pbar:
+            for job in jobs:
+                result = _run_one_job(job)
+                if result["error"]:
+                    print(f"\nERROR docking {result['ligand_id']} x {result['iso_name']}: {result['error']}")
+                raw_results[result["iso_name"]].append(result)
+                pbar.update(1)
+    else:
+        # multiprocessing (not threading): PLIP keeps some global config
+        # state and relies on OpenBabel, which is safer isolated in separate
+        # processes than shared across threads in one interpreter.
+        with cf.ProcessPoolExecutor(max_workers=workers) as executor:
+            futures = [executor.submit(_run_one_job, job) for job in jobs]
+            with tqdm.tqdm(total=len(jobs), desc="DOCKING") as pbar:
+                for future in cf.as_completed(futures):
+                    result = future.result()
+                    if result["error"]:
+                        print(f"\nERROR docking {result['ligand_id']} x {result['iso_name']}: {result['error']}")
+                    raw_results[result["iso_name"]].append(result)
+                    pbar.update(1)
 
     wide_results: Dict[str, pd.DataFrame] = {}
     for iso_name, records in raw_results.items():
@@ -370,13 +538,28 @@ def main() -> None:
     parser.add_argument("--receptors", default=str(RECEPTORS_JSON), help="Path to receptors.json from protein_prep.py")
     parser.add_argument("--ligands", required=True, help="Path to ligand PDBQT CSV from ligand_prep.py")
     parser.add_argument("--outdir", default=str(PROJECT_ROOT), help="Directory to write per-isoform results CSVs")
+    parser.add_argument(
+        "--workers", type=int, default=1,
+        help="Number of (ligand, isoform) docking jobs to run concurrently. "
+             "1 = original sequential behavior. Try os.cpu_count() - 1 for max throughput.",
+    )
+    parser.add_argument(
+        "--cpu-per-job", type=int, default=1,
+        help="Threads Vina uses per docking call (its --cpu flag). Keep small "
+             "when --workers > 1 to avoid oversubscribing cores.",
+    )
     args = parser.parse_args()
 
     with open(args.receptors, "r") as f:
         receptor_map = json.load(f)
 
     ligand_df = pd.read_csv(args.ligands)
-    wide_results = dock_and_analyze_all(ligand_df, receptor_map)
+    wide_results = dock_and_analyze_all(
+        ligand_df,
+        receptor_map,
+        workers=args.workers,
+        cpu_per_job=args.cpu_per_job,
+    )
 
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
