@@ -1,0 +1,268 @@
+ligand_id,vina_score,ALA880,ARG980,ASN859,ASN981,ASP939,ASP976,ASP994,GLN853,GLY856,GLY858,GLY861,GLY935,LEU855,LEU884,LEU932,LEU983,LYS857,LYS882,LYS943,PHE860,PRO933,SER936,TYR931,TYR934,VAL863,VAL911
+7b7c6207fdf73a88df31e72571ecd45017fe5f95e12225fb7e018e6a2ac3a092,-9.788,hydrophobic,hydrophobic,0,0,salt_bridge,0,hydrophobic,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrogen_bond,hydrogen_bond,0,hydrophobic,0
+c09e9eb02d8ed95eba31393693b235ae6f61471b94c02b902a5c6a7c56dc4007,-10.04,hydrophobic,hydrophobic,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,hydrogen_bond,0,0,0,hydrophobic,0,hydrophobic,0
+5b7947a7282cdfabb247d7ba31456a4fde0c997d26b7e8d8234d3286e169b824,-8.068,0,hydrophobic,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,hydrogen_bond,0,0,0,0
+3d02924b9bbe7869eed5297ffb33d2b2a067a86693d628be99c5902959be03d9,-9.871,hydrophobic,hydrogen_bond; hydrophobic,0,0,salt_bridge,0,hydrophobic,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+4beb1396cd6c7f053320450f67d4c5abfe884a13cc39037d1a20ed6c4f7a4ac5,-10.83,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+e5f5263d43e3cd2ff694c80e62361ed22fd296fa441468190f9daf998fb04ab8,-10.57,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+66adbca851a1e690439ad3b4bd3613d43dc8f08f4935c213540979b77c27d935,-11.26,hydrophobic,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+ee4bba3e1cee5adbc9cde9400da5e0fd3531c0aa35d94f81e66e636a0f0ed595,-11.54,0,hydrogen_bond,0,hydrophobic,hydrogen_bond,salt_bridge,hydrophobic; salt_bridge,0,0,0,0,0,hydrogen_bond; hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,hydrophobic,0,hydrophobic,0
+ff84bcd60698e335200dba8fc03c599ec0ba3602e15af13e4833e6db86bb13ca,-10.06,0,hydrogen_bond,hydrogen_bond,0,0,0,hydrogen_bond; hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+c674c0b116702fbbc29c19ad1bdc2b41a156998b5a63187ff4925ad29f4f5db3,-10.51,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+265fff8f854d1b7231711ca0c4a6ae01d7fa7c432181ac979db3c59f5cd853a2,-10.44,hydrophobic,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+1ac1f54ec81e473d13ee0a5187412a113059c2ee65dfa2f25af5a09159d15e71,-10.51,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+44eadbfbe5ada7938b0a7e2139b738866466e10ef6962543676de6afbc433c11,-9.773,0,hydrogen_bond,0,0,hydrogen_bond,hydrogen_bond,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,hydrophobic,0,hydrophobic,0
+461a0f8bdff8a260428289fadc4985d4bd6ab03258f079dae08a8c5216f4df25,-9.058,hydrophobic,hydrophobic,0,hydrophobic,hydrogen_bond,0,0,0,hydrogen_bond,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,0,0
+ff9117e73c537dcb71ec44a439a96849cb5c3fc1a9bf5665fa4eaf94fdb83446,-9.144,0,hydrogen_bond,0,0,0,hydrogen_bond,hydrogen_bond,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+2455a311688df7f9e8089e29211e765ec62fad7ebd9d2bfb6bfba678feee87c2,-9.107,hydrophobic,hydrophobic,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+69a0df9c2fdd6b8bea9c37c81b3ff084016ef487b1b13737eec50e7dd8ef5049,-9.715,0,hydrogen_bond; hydrophobic,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,0,0
+065f105ce8888dd176fcff6973df8ae8eb5737c9190c98e6d47beb40845b0295,-9.486,0,hydrogen_bond,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+a3ad1186867b8b53c9cdd6714663c21ac58f07d8c37b5ab5c69759fa6a2ba4bc,-9.895,0,hydrogen_bond; pi_cation,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+ae22e2d45d76922663aa46378e543d727eaacd743900dd2aa9109bfe60f4ff45,-9.86,0,hydrogen_bond,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+09fbd290a51b54fab8f6ea4bfc14a8d5d73778a863f2954380519cbe844d06a4,-9.715,0,0,hydrogen_bond,0,0,hydrogen_bond,hydrogen_bond,0,0,0,0,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+5dbb39af1aa1cec4d9ee4ae38d53c298a092b15cbf22b7d83111daf5b5405eea,-7.344,hydrophobic,hydrophobic,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,0,0
+643dafbf3624a9182cfd96a8f9a0c490058419308c9238bffd5a1ffb27572f7b,-10.04,0,hydrogen_bond,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,hydrophobic,0,hydrophobic,0,salt_bridge,0,0,0,hydrogen_bond,hydrophobic,0,hydrophobic,0
+d3481bd42b76ccc55ba4fa35a007d23e8f9e00d36e13a42480fb2000c0095c33,-8.574,0,hydrogen_bond; pi_cation,hydrogen_bond,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+b77bb409b96b92c0caa9eb4fb122ec807632d51b31e7e14e344df88eb8815732,-8.121,hydrophobic,0,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+272de91cf6d0660ed2146cef23dc7495e62ae09f7ea92ba2c514a342794b2bae,-7.887,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+b5003e30817e12c7896435f322155b8cd0342fea9bad31bbae3a60e084c8e477,-7.627,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+363e270e65efc159abd01cb1be17ce9564b9f7b8210146c49c1a16148602cf22,-6.488,hydrophobic,0,0,hydrophobic,hydrogen_bond,0,hydrophobic,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+3e5d954032470b9e883cad2141039d530571e0e2e84289192ec2740c1efc8189,-8.577,hydrophobic,hydrogen_bond,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,salt_bridge,0,0,0,0,hydrophobic,0,0,0
+4e73dc2c6659f0ebc2336b3eb4b74cfa10be29e5e75773b0c7f8e705f71de032,-8.266,hydrophobic,0,0,hydrophobic,hydrogen_bond,0,hydrophobic,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+1b76a44ff4eddae71be5bf5f81e214de0bb96a8e7064f7b58bdc78b18f4843a0,-8.383,hydrophobic,0,0,hydrophobic,hydrogen_bond,0,hydrogen_bond; hydrophobic,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+76c7a6fb8960ebcda45d345daf7b66f1598c9f68c5395764e7ca6de5b2db94b2,-8.324,hydrophobic,0,0,hydrophobic,hydrogen_bond,0,hydrophobic,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+729c91b7a60a9998f3733bc8add8aab2156c0940e14a0cb26a2a50e2d9ec46c9,-8.485,hydrophobic,0,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+bd7ec9ded4db62891d9cdcc0e6bc7a2843103b77e637b4837eb28b8e7d22b7be,-8.209,hydrophobic,0,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+5b623d2e7e6bb2ad636f0dcd8884624b14798b57098ed9b896e82f8e033b1b40,-7.811,0,0,0,0,hydrogen_bond; hydrophobic,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+5c7f86577b9e199d5154ca4e7c17fd2b2d189a575daaaec49ab520f299556842,-6.606,0,0,0,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0
+47645091cc1e592eec573dc90f24f39d6196059d06128f6e924f64fbd94b0ef3,-7.789,hydrophobic,0,0,hydrophobic,hydrogen_bond,0,hydrophobic,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrogen_bond,hydrophobic,0,hydrophobic,0
+db775a59debf35cd69854d1fa2d16756aa8d741d1fc89e317bf81cce03b97ba6,-10.12,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+7b41115b0fb1fa01a847315236faf076be2d39a0f0595b24b45acd73d734fdd2,-8.704,0,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,0,0,0,hydrophobic,0,hydrogen_bond; hydrophobic,0,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+a650948ad6e4aee734bf4cbb2858fcbb8e21496727579863c4079f801518b1e6,-9.222,0,hydrogen_bond,0,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+b575e60405868b644f09c380b39a2a2d55b8e23b725d714089e0fcb8ccb15c80,-10.04,0,hydrogen_bond; hydrophobic,hydrogen_bond,hydrophobic,0,0,hydrogen_bond; hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,hydrophobic,0,hydrophobic,0
+376a73f12ad1d4a04478401298ff721688ede34bc5d382d035f1caacc3914bfc,-10.0,0,hydrogen_bond,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+6012ed3ded4c380f85559a0bb0dfbad5fa118ecf51d3b9c3a5f0a6f90d8cfef3,-11.12,0,hydrogen_bond,0,0,hydrogen_bond,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+7ef9f7ecad3f58130ef78c7ba9503dec2809b2d24f26d0360d0bddb6a650129e,-10.26,0,hydrogen_bond,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+2006c403efcffde5b42bc588e035ff6f65bd328aa6f3420a9c9d810000166e09,-10.59,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+75cd41527a60b08fc89c9c080ed996a98ad216c6844e84da26190abb13b7c591,-10.32,hydrophobic,0,hydrogen_bond,hydrophobic; halogen_bond,hydrogen_bond,0,hydrogen_bond,0,0,0,0,0,hydrogen_bond; hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,hydrophobic,0,hydrophobic,0
+ffa8d01797693e1c2c16a35ded2fc6a16d3ca26c1dfe5fd1e2e795411e065458,-10.27,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+f017a054a2b0f4d2e3438513af14dc91bfcf6d8e7b6ed2c928541da8c7217a72,-9.012,0,0,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+6c23b1a47748edc80d0778923112602a76e9f2560f5e700c83ab7a08234869d8,-10.05,hydrophobic,0,0,0,0,0,salt_bridge,hydrogen_bond,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+ed2ef93074de91f60a23aba97dcc05c1e732bc31f1dc25a858b67f55476943e0,-10.31,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+7b1db0ad7481582a3828ca9fb3a585cf7ed51dd49b8c6bee93e87090b0d5a20f,-10.43,0,hydrogen_bond,0,0,salt_bridge,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+c14cf243b2a327fb6c7044b3552cccb96296369c1ec5cbcb30b4c03b2f620272,-8.991,0,hydrogen_bond,0,0,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+601440bc68427af472943c3004d5f59edb625b1a1e203295d1910bfb3a2a27af,-8.919,0,hydrogen_bond,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,0,hydrophobic,0,0,0
+839602b60f87e3af44d1a14b5658bf13176b91b08ba37ca6789853825050231c,-11.72,0,0,hydrogen_bond,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,hydrophobic,0,0,0
+0cb154348bca482c0b709fed45334e9bc42861bf74c17bed9e495a6f9ef833f9,-9.956,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0
+a2e58d23156ec3fb81210ad63b475e03146afdb9fbc7ffc90071f66960a16092,-10.4,0,0,0,0,hydrogen_bond,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+48ed321474a693d73c26e409c13ac475b81d26bead8a1c600765d4569774b094,-10.67,hydrophobic,0,0,0,salt_bridge,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+9f35394a76a97be5873e4280ffa600b4657b5964697c5d8629392e65906f040a,-10.4,hydrophobic,hydrogen_bond,0,0,salt_bridge,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+cf1074e569b09b6604d053121734f4abf38dcd019b72eec78c2486c606cee8f8,-11.03,hydrophobic,0,0,0,salt_bridge,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+e315c05c8852eaf142ede3d6ae64b9f71c445eb9d1b25469b959e8186a8e511b,-10.72,hydrophobic,0,0,0,salt_bridge,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+49bdfe8f024565c7d20aa3050d8213a2b0d5122290a24a9e4fcb3ef8786a3e25,-10.38,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+cf2428bb1f3777973b664012b68280959045245579fa9439bd45ab0376def85d,-10.32,0,hydrogen_bond,0,hydrogen_bond,salt_bridge,0,hydrogen_bond,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,hydrophobic,0,hydrophobic,0
+65dbb915370587b22e4d2b33b4578f229c50fe48cbb49f878b5d00f5193cd811,-10.08,hydrophobic,hydrogen_bond,0,0,salt_bridge,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+c99a34607eb6ebdd096b12d69da02b7b0284051b17086e4320da8a0091feba9d,-9.801,hydrophobic,0,hydrogen_bond,hydrophobic,salt_bridge,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,0,0
+beb1e0df49df190a2ca2be626b7c36f1545437bc1c282690e3c0b0c1030bb7d1,-9.32,0,hydrophobic,0,0,0,0,hydrophobic,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+5086de051d4c820953b5c52e83074c1bf455d3ccf0b4a2038a66e05e47ed44f2,-9.475,hydrophobic,0,0,0,hydrogen_bond,0,hydrophobic,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+b7be3a6c609406242d8c459c5b4ddfe986e41ba134090677d417530e371e2631,-10.38,0,hydrogen_bond,0,hydrophobic,hydrogen_bond,0,salt_bridge,0,0,hydrogen_bond,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+37c398e5ffb75c22087b22bb5fb3b61f2fe8edb615c2aaefa1d41f2a80f0d58f,-10.6,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,hydrogen_bond,0,0,0,hydrophobic,0,hydrophobic,0
+0b9c0f2f256794d1460f1b238d2d1964b9ade9ba18a6327832ce9632f1fea760,-9.61,0,0,0,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,hydrogen_bond,0,hydrophobic,0
+d8d351dfa49cf550c3da2122ef7e8966ba45563aa24eb7e584c9826dd32925f4,-10.46,0,hydrogen_bond,0,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+bf23c9003570774e8d7505a8e869236eccf479268d7028c43cbb4ffdb1a92096,-9.472,0,0,hydrogen_bond,hydrophobic,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+7166390902a4bdb776316ce6dbcd29a508556122ba55ee335a3037ab6a48dd6c,-10.02,0,0,0,0,0,0,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+17e16e5882521c4f57b7dc7991d14dc5b659228ba99c23f24eb9df9fe2ab84fe,-9.422,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,hydrogen_bond,0,hydrogen_bond,0,hydrophobic,0
+91bf1a4a0d59306ccf2f891dfad2e4b9647988b67e5c5cd5fc7d84b62d37746d,-8.623,0,hydrogen_bond,0,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,hydrophobic,0,0,0
+871f3769558cdfa53cd8c2f746a6dbeea27af0e39a25bfcfc57168cceaa46962,-9.154,0,0,hydrogen_bond,0,hydrogen_bond,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,hydrophobic,0,hydrophobic,0
+63e7365daa73ed756997d95b38c7e973a62776808ec8c4648d364e130897b0ec,-8.738,hydrophobic,hydrogen_bond,0,hydrophobic,hydrogen_bond,0,0,0,hydrogen_bond,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,0,0
+85bfa25adf53efe57c9677e3a9624746cda3af00855359e427e5c4410775d6b9,-8.889,hydrophobic,hydrogen_bond,0,hydrophobic,hydrogen_bond,0,hydrophobic,0,0,0,hydrogen_bond,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+7757699fa27e6ce836de9c90975d1e6622403f05931ce950172927be858ef918,-9.614,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0
+750d416060e9b8508a02d940718b894e104438753ab4bd11b15405880cdb892b,-8.952,hydrophobic,hydrogen_bond,hydrogen_bond,0,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,0,0
+cd81ca9a7ac19cca6819bf29081f79c07bd713667e01b3e38e179b8a3af623ec,-9.089,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,hydrogen_bond,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+3e4d0bc6f555b275ea53587299abc91ba5ff52360375ef3eb16696e1154dfea0,-9.795,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrogen_bond,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+2b0c340878381f87d09fddfc4dd1efe207d83732edef42b73e0caa4cd68abca6,-9.15,0,hydrophobic,0,0,0,0,hydrophobic,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,hydrogen_bond,0,0,0,hydrophobic,0
+bf922e96a3523df852ae1f6fc74901015db3962ad0b00ff37f93252d303aac44,-9.5,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+e513f24068710bfbc30deba54b82b9a7d649aa095a1faea8b36f8477f0cbb4d5,-9.272,0,0,0,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+bf20785c9fa177d182a5ca45b143c770173d9f4da42c2b3d3226df98e058872c,-9.066,0,hydrophobic,0,0,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0
+fd58103468295c420166a16327182a9c5f82d311ca247d980131351b3699d51d,-10.67,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+9a314f139019346b07643f9ff5ea0aad3bd9962912307b13c38da3e867ad4d27,-9.012,0,hydrogen_bond,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,hydrophobic,0,hydrophobic,0
+1960fb1b2de95d20ba84ade5bbc7f8b283f297b490637ce95b6e1f9a39b79e53,-10.29,hydrophobic,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+aedacfbfabf5886c664cda57583310440ad94865d52c13c4de1605d26a38f1ae,-6.996,0,0,0,hydrophobic,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+6b2e48a6c24676b0d900edd4fb07af7d03fe828a475410adc8f1e5ad7dfbcd48,-10.46,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+f17949413c5d799e4fae8936520792aa9654233e7ed15308c869dbac044e85c8,-9.347,0,0,0,0,hydrogen_bond,0,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+85ea3a22e254d3d2d5f16c4758e9b98ed7ac9d84fd3607d89af9569a4dfb8fbe,-9.065,0,0,0,0,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+b4e3a6533f161f0804a579bd2b4c47e8ee90ca648a1b83a4a85601afa3731a1b,-7.408,0,hydrophobic,0,hydrophobic,0,0,hydrogen_bond; hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+318ce157326357e869ae771402dc3c8490a4c86a320ecc630a395f6e5d06bdf9,-9.199,hydrophobic,hydrogen_bond,0,hydrophobic,0,0,hydrophobic,0,0,0,hydrogen_bond,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+c054d94d9ea58f68122afaa39c9cd16902803696a4f66df5121cadee7c354612,-10.24,0,hydrogen_bond,hydrogen_bond,0,hydrogen_bond,0,hydrogen_bond,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+a731205cc79e45352df1ed0166f8176df8ad8d4cf17b69d6b0eff670948de720,-8.925,hydrophobic,hydrogen_bond,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,0,0
+ce09fb29aeb686264df121c292e3b885875c972b2034dc9555ddd60f4cba0752,-10.62,0,0,hydrogen_bond,hydrophobic,0,0,halogen_bond,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond; pi_cation,0,hydrogen_bond,0,0,0,0,0,0
+0cace774740216ddb93cb86a97c6cd99abc8f61b8839f03b0d18de5010e154c3,-9.557,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,0,hydrophobic,0,0,0
+a35590ee1263db379a626589d5a9759d07ddce3690581ad054fa330531dc6ba6,-10.09,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+48f96a485107907550f747d110cfcb0b8a63d1d3509393d65131cb052b9bb448,-9.363,0,hydrogen_bond,0,hydrogen_bond,0,0,hydrogen_bond,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+27e2ec1a7d900dbb48e3f3bf421d4f8092f3bbef3b4ce2d0d8ef1f80c3eb135f,-9.392,0,0,hydrogen_bond,hydrophobic,hydrogen_bond,0,hydrogen_bond; hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+5746923406c8e09b9e48ed32016391d8df7b1458aef1ee5bc9e7e8bc337ee1f9,-11.11,0,0,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond; hydrophobic,0
+fbb4a0f94371337fc33231fdcbcdf9fc6d765cd08cb7522aad5afd22a3aeb267,-10.8,0,hydrogen_bond,0,hydrophobic,hydrogen_bond,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,0,0
+a07c933da949c24abf594768cf188e3775eb45bb122bb6bc95144291aa148532,-10.98,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+9f2a94c23cc9d8f06a1b44be8a9b57a005fdcf3e6f2e376c1989956aac4745f8,-10.81,0,hydrogen_bond,0,hydrophobic,hydrogen_bond,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+79ef1c831ab205c5c80ac0e7429b2a2df71653dfc9c7748e28e8b2732dd1474f,-10.56,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,0
+6a8410e3be13b032f528e6f73c2dbcafd42c2ff1b88b6c03478aa0429f968dd5,-11.65,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+f19aeb21d957d7e81a4cdef79c85d63c522354715b72277e1b55b12664e1b8e6,-11.11,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+c33218773306bd3f0360c903fe5b2c9a3fdc0f13ad04d4ebb2644baaf6ac7164,-11.44,0,hydrogen_bond,0,hydrophobic,hydrogen_bond,0,hydrophobic; salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+2b6452fbfc2eb167a2329149571557bd5e769e49e928d8db476f72dced72fed0,-11.63,0,hydrogen_bond,0,0,0,hydrogen_bond,salt_bridge,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+69686def189f12cdd574ccd690a6944add8babc8959cad1dbfdbed05693680e9,-10.56,0,hydrogen_bond,0,0,hydrogen_bond,0,hydrophobic; salt_bridge,hydrogen_bond,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+81d0b27a4b8fec0bfa08a2367a80f79162e518b80b949dd26fce4a98ceacf895,-10.32,0,hydrogen_bond,0,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,hydrogen_bond,0,hydrophobic,0
+6a7dc5018ce005f3bad0245cfa5c32599fe9a4477c71e587969c774151f570f4,-10.55,0,0,0,0,hydrogen_bond,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrogen_bond; hydrophobic,0
+82c06321aa38fa9438546ec946d4a288eb72aa5f0c98e0032abc02ee20dc5a9e,-10.43,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+1c9d5e1dc85d76b22a656f40f25438b48fa8ef2349f1acb272ffb81f7fd6807b,-10.74,0,hydrogen_bond,0,hydrophobic,hydrogen_bond,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+ddface1eaa5d42e56344fa0051fb9b7b6b1a98cc2e27c88faf398a7d6656f283,-10.93,0,hydrogen_bond,0,hydrophobic,hydrogen_bond,0,salt_bridge,hydrogen_bond,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+b69dc8b7aba7b36020268c59ee8c8badd74f01f37a29ee4b6b209444d27ea5a4,-11.54,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+0735a5a151318c8bb9de5b477576ce630fbc790e6d9a8477ea773b1e3ead2a97,-10.7,0,0,hydrogen_bond,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+c21bfc3aee68aba4831338935c11e4ff290fbf6e9348ee93e7c9d41a86714d5c,-11.28,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,0,0
+0d733a89873434741f8d13bae327c9d50600db40a2ba565decb38bdb81520a84,-11.34,0,0,0,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,0,hydrogen_bond,0,hydrogen_bond; hydrophobic,0
+318d1fe54f7663c478f72ea25673795999716aa2dba00883a8152f380e47885a,-11.15,0,0,0,0,0,0,salt_bridge,0,0,hydrogen_bond,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+e5f19eb654b3eec806712cc79caf51eb05a099e33c29f94c83dcc8b0c8491e3c,-9.21,0,hydrogen_bond,0,hydrophobic,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,hydrogen_bond,hydrophobic,0,0,0
+4f1e2307eae6d31c0e73dc3383df9a28fc2983505157939e7c9da63ef0a219c2,-9.33,0,0,hydrogen_bond,0,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,hydrophobic,0,hydrophobic,0
+90afb9ba8e1253b79d4e3c902b4dc092c979c1f45c6c845394ac892d30288a3f,-9.866,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,hydrophobic,0,hydrophobic,0
+8f08a7951c8e8fbbf3bd547bda8645ad3a0d7d3c5b7a6dfd5fa3e4da22fcc422,-8.542,hydrophobic,0,0,0,halogen_bond,0,halogen_bond,0,0,0,0,hydrogen_bond,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+b2a45ee4a88bd2bea7afdd280891d58af7d719f7e65d540a26b8a8cb583d756c,-9.552,0,0,0,0,0,0,salt_bridge,0,0,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,0
+3d7bf0522df7a787054d22c987b9a018ed6fe1826462a26a8d88d2d7337b01f4,-9.112,0,0,hydrogen_bond,hydrophobic,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,hydrogen_bond,hydrophobic,0,0,0
+04707640a95303dadabf8585117a0c173430b2adcb8cb12dc9a2863b696df1f3,-9.58,0,hydrogen_bond,0,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+0c5432b0b206458b67991eb6dee9dd2767b370d18cf32d3c23c9ff5ca02331c4,-10.29,0,0,hydrogen_bond,0,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+c1d4d0f2b0a3ed88c42eca3b5a9f29f34b99c06453cde459baf7817e4967fd09,-11.27,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+6a7ddbd13582d4c4e20382847423700b440024a6d270e3a3a6484401bb9e1246,-11.06,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+945bd315157afba95d4a5278364e73eb7291fdac3f8a6076ec258af45d6b15f4,-10.44,hydrophobic,hydrophobic,hydrogen_bond; hydrophobic,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,hydrogen_bond,0,hydrogen_bond,0,0,hydrophobic,0
+6b479f395f6de0537de51f971e41156aa5190c403b8ded9b98796177c4305556,-10.41,0,hydrogen_bond,0,0,hydrogen_bond,0,0,hydrogen_bond,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+bac4bc1aef51baaf58d0240f92b8559a57303aa03c4fecfc7c733b162d42caed,-10.49,hydrophobic,0,hydrogen_bond,0,0,hydrogen_bond,halogen_bond,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+434a0df2bce3b44f0fa9bfc5d344c2e458ddea6c03fa7d21935f0fcdbeccfa18,-10.66,0,hydrogen_bond; hydrophobic,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,hydrophobic,0,hydrophobic,0
+931e20a0f0fb9645dacae1533e02ddec4cbc80be814dcfcefca30dec6256c2f4,-11.22,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+efe2c88a3a33306eacf6f631e88770b1d8d6d41932bf78d4dd789b288f9ad4e7,-10.24,hydrophobic,0,0,hydrophobic,0,0,hydrophobic,hydrogen_bond,0,0,hydrogen_bond,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,hydrophobic
+73c3749c553432aa0802b63e49429c2bf384a5c2a853182fb3cac714b4d75d03,-10.49,0,hydrogen_bond,0,hydrogen_bond,0,0,hydrogen_bond,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+ee909f5c165c6675406bfd399f55add25ff269deaf6199fccc1593dd691ba697,-9.101,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+d967a80ce4a656d622d73de73931a8de447a6abcdd760d584063dfbc6434785c,-10.84,0,0,0,hydrophobic,0,salt_bridge,hydrophobic; salt_bridge,0,0,0,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,hydrogen_bond,0,0,hydrophobic,hydrophobic,0
+77d09510d0b4331a40ce9ae92a7734efb9099f3be58362ed04109b0c175aa9b3,-10.42,hydrophobic,0,0,0,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond; hydrophobic,0
+c69b7f126b0a4e86ee797a4a8ddd50c3c1fdcc713ad599b5e28d408556c20ba9,-10.28,0,hydrogen_bond,0,hydrophobic,0,0,hydrophobic,0,0,hydrogen_bond,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+4ff9947cf2eb6e4aad9533d01512d6113f29ccc2377369b77b0bd57fffaaf257,-10.03,0,0,hydrogen_bond,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+9fb364b30281658770f63745f359f2dfe55e71aa545ddf68a6f4798bd97e2e12,-10.4,0,hydrogen_bond; pi_cation,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+31a78fa68ff5a088d16f05fba7c103e0be90252bcf4db3cc30c806f379a56bf6,-10.17,0,hydrogen_bond; pi_cation,hydrogen_bond,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+f701fbb2922283e7947e186662923c09f8be9906a3ab82c01a286db411704b0b,-9.942,0,hydrogen_bond,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,hydrogen_bond,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,0,0
+8964ca32a728734606082dac2eec9be013a59d4c95b2cc6cae19c3949f5f42b2,-10.15,0,hydrogen_bond; hydrophobic,0,hydrophobic,0,0,hydrophobic,0,0,hydrogen_bond,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+90facff16f5901519b540f89ea7533890516177298c5e9752ff812df0e6790a6,-9.795,hydrophobic,hydrogen_bond,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+de06413b8ce0ff986e4ebad6e7ea4f4db86702cb4ef39febf545fb9a7d5ac682,-10.8,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrogen_bond; hydrophobic,0
+44fdd506945e46c064a1459602ebac3222f33b379d914381349729fef1442b2a,-10.64,0,hydrophobic,hydrogen_bond,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+0866c74962fa87a1124bdf826bab82f0fccaab893b39bf1a2ebff52688274f4b,-10.67,0,pi_cation,hydrogen_bond,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+a8761d65df1c9db97ad10a0b5915cdb9d62bcc1696ef0c88d95ada9b4a87abaa,-10.76,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,hydrogen_bond,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,0,0
+ab6db6ee3d8cda1f8ac45223516f163504e03aa45c610754dc2d5e6e38d4f94a,-10.87,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrophobic,hydrogen_bond,0,0
+c4922c27fba302ff21456edc516eecd370e79786dff9bf82c818c668ca791697,-10.22,0,hydrogen_bond; hydrophobic,0,hydrophobic,0,0,salt_bridge,0,halogen_bond,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+04ff436b2ff175d1651602053e113d3b4db9bd39a983966ce292932ad00a122e,-11.61,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+16d6d0bc2347b8d85bc27f508eb48c7defd7c9af897fbe186c5852226c6c46ff,-10.18,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,0,0
+858c61164f46e06c0e2221b3613ab79031883ebf1456e680e57d4b5722b4c680,-11.11,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0
+c8fde7f7e1374052a0edb724858e822114cd73b76070bab8626bfd930f1b171c,-10.66,0,hydrogen_bond; hydrophobic,0,0,0,hydrogen_bond,salt_bridge,0,0,0,0,hydrogen_bond,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,0,hydrogen_bond,0,0,0
+f69cad9e644e4c282e6b346eaa7e3eea28395bd5a8a6316f59b247aafdbcf696,-9.434,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,0,0
+16071131c02d0a2c0c242f850392af84f9307300443ddbf7569e13e68464269c,-9.853,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+f6b834143ffa401af96f242539a359a92c0186f22158c30d94eff1d1104d4ad0,-10.91,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+69eef25c8f8cdba95ff863ccd72ba8c34188c769cff27f71a85ae7ba760ccf17,-9.898,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,0,0
+df105f3f19431efaae829dbe62e5d4a1826b3b61cd5bfcb77ebc0f7d33828e07,-10.86,0,hydrogen_bond; hydrophobic,0,hydrophobic,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0
+6055b6fcab9d006f47a81143930290f0631cc7285f6164de3045683581d8db49,-10.4,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+b62e28729e1a30414916dff83427f099ba5ec327eee98a3ea9d1da959ea03c79,-10.77,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,hydrogen_bond,hydrophobic,0,hydrogen_bond,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+a0c5216287c2b8a52d9bea3a0753ea87d1bf4c9627bb49b4eb3feab108824cf2,-10.52,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+e30e0e28d3ff27fa326a18d977d9cb970ea9c461d48ef724d8eeaad69509dc82,-10.59,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,0
+36f7c8318e99a72278ef6470e9ceed87a656f972c7d97aa48b9c39cf2c8fd6b5,-10.61,0,0,hydrogen_bond,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+daff47d9dd503fc58a372dfdc9dd7803d9801977e8542b06b96add23ebbfd40a,-11.0,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+f29c57b655c024640bbb810c535c8c442bcbe56c745591b87063fb28262477f1,-9.869,0,0,hydrogen_bond,0,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+71e7b85a2f341cca1ff5d031a11f5b22d762334249aeca60f0d26518a926a9a7,-10.29,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0
+c9b934bff24cf1d7b7f20eedc2fed4ac39887e008bb7512c8e9918bdcb8b4f61,-10.24,0,0,hydrogen_bond,0,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+836382809e484969a9360a0acea8d2ea5f8d59abc9dadd664d724dc0cdaa8eb1,-10.01,0,hydrophobic,hydrogen_bond,0,0,0,salt_bridge,0,0,0,0,0,0,0,0,0,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+e121e6988d24b6788f4945dcd13ea622a189e9d3482acfc3e3e522009f2661df,-10.54,0,hydrogen_bond,0,0,hydrogen_bond,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+0dd9723e5325bd57d19bcfb2d0490889274f0584c818558ab324642b9b1e54b3,-10.58,0,hydrogen_bond,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+534090c747ba307c3eb7008a46dd515114666d6397b43d19db81107d4cbebad6,-10.62,0,hydrogen_bond,0,0,0,hydrogen_bond,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+a5f206a2c09f5dc5e3857897d1ea3f6ba43cfce6984691ca53513a20697767b8,-9.934,0,0,0,0,0,0,salt_bridge,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+1a9750ade32d3238a6e0bf1651cb5426b121aef300fcf020e53bf2deb14caa35,-9.674,0,hydrophobic,hydrogen_bond,0,0,0,salt_bridge,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,0,0
+9a2a878ceb6a0a0b936f1f7239d7f97cd6f753b98c186e5de86cc3a9d53018a3,-10.19,0,hydrogen_bond; hydrophobic,0,hydrophobic,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+8e97fc03226b4a1911b605d3d24034da42b237eac28ee6f7db53a96659e10f49,-9.125,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0
+5a41893cd6aaed88957f1cb65be02734ef192c5e21b310ec131885cf87c98903,-9.359,0,hydrophobic,0,0,0,0,salt_bridge,0,0,halogen_bond,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,0
+169544bdeddf336ea5477b9aad7a47c1876d7bc04cc49d57b414518366b295e0,-9.541,0,hydrophobic,hydrogen_bond,hydrophobic,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+b2e7b92c1a986162dfde22cd0f3dc48b1914bc3f238aab1a08915c3f991d62b9,-9.652,0,hydrophobic,0,hydrophobic,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0
+62cffa4bb5905a2468f1b06398cb34149178117709913d9b6bc5dbbf3324dbbc,-9.659,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+97d342d90fa863337c7f869fc0136f4a24470e2ba3106cc3103e0077898c72a8,-9.681,0,hydrogen_bond,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+c802af5a82aedc6d360c88bb3cf80db4d28e24fd0db7c6557e96ba20be410881,-9.88,0,0,0,0,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond; hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0
+4bbeed1110c8611366e739cc0daf7384011b79a2434569c93371e38d0614c558,-9.528,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+9dfe8fc7d9a7f2263a788323d81fc65ad2af1e4b16b60b4c40cef8c46cbf2719,-9.819,hydrophobic,hydrogen_bond,0,0,hydrogen_bond,0,hydrogen_bond,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+2a1d4cf9a66cac8561b3407b28224614b2151ddb78547af130f875c60f239ecb,-9.834,0,hydrogen_bond; hydrophobic,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0
+43aabffdb6c6570736cc93649e539ca5f17dce961cea5eb11720e52d8eeca3d3,-10.25,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,hydrogen_bond; pi_cation,0,0,0,0,0,0,hydrophobic,0
+38c35eb39cd89debbe306ff021a47a627b29b3ba1f571a51e7c80e1006e10bef,-9.462,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+fcb10297b6365ff126e267185499a3e9ae8a87fa15314665354d10a86468b43c,-9.12,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+5e2dc818444583e466abb9b53e335224b9927569d09a7c05ec41d9f962f109ea,-9.941,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+db1f1325553bd753d9eccf50d9d41fe0e11ee47f0a51a4f1573a74a56b8d9d9a,-10.92,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond; hydrophobic,0
+083c3210c3aeb3951de9e53497f5d3d58b633c86f4c5137a5fbd7498a3f226eb,-10.45,0,hydrophobic,0,hydrophobic,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+4f923ef17b65b37c31c29507783f26753186241f1d34e3dee290f65edd59b2f8,-9.782,0,0,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+bd90189f37bc466593f38d34b5d1403666a9f91866b2305cea5e46159671b048,-10.94,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,0,0,hydrogen_bond,0,hydrogen_bond,0,hydrophobic,0
+7c013e41e454d29df647f74f60be477770af9c3105b71975d39667d0a8e1bc2d,-10.15,0,0,0,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,hydrogen_bond,0,hydrogen_bond,0,hydrophobic,0
+8e1e5f6e35178404e746ecef504109f30335e8fb89cfc6c85173a769b6ffe346,-10.67,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+86f78893c458e5ebfa7f98533f9d9c964213bc867f82c476607d48c429369f37,-10.47,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,hydrogen_bond,0,hydrogen_bond,0,hydrophobic,0
+a0c9b3dd7a925e3a718ea93aee95389b41ed09550ff9dc2c56c4f6f627c256ef,-10.26,0,hydrogen_bond,0,0,hydrogen_bond,hydrogen_bond,hydrogen_bond,hydrogen_bond,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+029b4cb783d7899bf0d92683c2f51a953e4c3427e7987799c77b144ec4550570,-10.21,0,0,0,0,hydrogen_bond,hydrogen_bond,hydrogen_bond,hydrogen_bond,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+5e3fba57aa6451bb6b20e244635d68219df59de962993884766997ecb6ace271,-10.36,hydrophobic,hydrogen_bond; hydrophobic,0,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+4a3167f8240721b75edff0114549210753b13ad6b85e4e5fdc1af08b3be57e7f,-10.97,0,0,0,0,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0
+8c5da0432d374512083f071ddd1b0fffbafffb72297af663aaf933d26de79b3a,-8.886,0,0,hydrogen_bond,hydrophobic,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+3d50c3d462caa67eeb6d994363b94f11d906d4ebebfd388924a3301dbe47fcbe,-9.122,0,hydrophobic,hydrogen_bond,hydrophobic,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,hydrogen_bond,hydrophobic,0,0,0
+9a78f4b29d431c055840393a0b6da39f698a87de4459d7270a42bfeba608d51b,-10.13,0,hydrophobic,0,0,0,0,salt_bridge,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrogen_bond,0,0,0,hydrogen_bond,0,hydrophobic,0
+90f74f8f671d5e91d0f9eaff693c8107e7b59a9eb98b4de52de2480d37948882,-10.7,0,0,hydrogen_bond,0,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+f928b308f001b340a14dacecd6e6f6bdb1b878a5744ca8d2599453d9a1af2f4a,-9.923,0,0,0,0,0,salt_bridge,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+32e39e8174a22b6c01dd84a76ea3472b1cc6b281b2763c7dac19c84365d44feb,-10.06,0,0,0,0,0,0,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,hydrogen_bond,hydrogen_bond,hydrogen_bond,0,hydrophobic,0
+b1ae2c4a4862f8cd831ed99774123403c4fbc18ec824c9f9ca93eee9f8cc956f,-10.33,0,0,0,0,0,0,salt_bridge,hydrogen_bond,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+4817daece6573015564b699dd3878a598d91b3a2f23c6a9ff67784f144171e03,-10.2,0,hydrogen_bond; hydrophobic,0,hydrophobic,hydrogen_bond,0,salt_bridge,0,0,0,halogen_bond,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+e382a2c888579613c40db8c292ae40ffd964672fa5f3fc1ec3679b6365965cf9,-10.57,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,hydrogen_bond,0,hydrogen_bond,0,hydrophobic,0
+e2d4b4b6a7cf6f3586c2bb4820e3618febbf9eb211f0c1a441da48005f5440d5,-11.26,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,0,0
+d2bf71335c14ea5da46700593805c19d8505df368179b23ac419aa1cc2a3589f,-11.68,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+06641d7ce5be6713c6448705832913ae69b32b62379040aedbddc9cb2dbf4f34,-11.46,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+7515018b41079bffca2795883e6596bbccba726ebfdfac75a60634541fce1047,-10.69,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+fefb503a5b3847783ea5b5352934c967eb959688e2d3b38d337551228303e88c,-10.8,0,0,hydrogen_bond,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,hydrogen_bond,0,0,hydrogen_bond,0,0,hydrophobic,0
+811932c5dbdd5ed6db72114e1aaedb5a8d261c78517439f503ba88a342e335af,-10.9,0,0,hydrogen_bond,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+62ad4405eb55217f26fd5a2727d268d0b390f4f116ecfdbde7b27c12f140b561,-10.78,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+090a2dedc1d24655a5f468124d868522a02f0a846e7e4ad882b5c3705a46db1b,-10.98,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,hydrogen_bond,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+140bf3abc5f58770470a0c6aee1ba07a2e2c5154999ab4089c5905281affc26c,-10.23,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+3e66f29a7f0984b40f60cebb9b5b0965a1693ad09abc704e3fc6061a0545f099,-10.38,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+70a377deb76e3e321864411303b995cd564d9e26f0a2151f63f78d6d7f0b0bc1,-11.56,0,0,hydrogen_bond,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+9fba17d3d86a8ee354045911bcf620a682aa69adae8efdd4400ff56990591331,-11.32,0,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0
+a858bd8a2f86b98d83460f8a00d1dccf48108f9c831f5347a4fab751ccfb62ed,-10.23,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+a37749a8e01bb42f0a6db4b1c3c1a794df935c0d95db82af12c2a0b4feeb994d,-10.45,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,0,0,hydrogen_bond,0,hydrogen_bond,0,hydrophobic,0
+7197b5bdd1d14fd37a152bad0d1bc298170a7f2dde5778d0eb88893d54c4e6e5,-10.23,0,hydrogen_bond,0,0,0,salt_bridge,salt_bridge,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,hydrogen_bond; hydrophobic,0
+8fa6c7233edb0ebda62f9d624e4326d7df553dd559d73940173d0726654fc9f5,-10.06,0,0,hydrogen_bond,0,0,0,0,hydrogen_bond,0,hydrogen_bond,0,0,hydrogen_bond; hydrophobic,0,0,0,0,0,0,0,0,0,0,0,hydrophobic,0
+35a88567209873ec075f4a2dffaf574d48bbf44343cd5c667a3c408ce5b76740,-10.38,0,hydrogen_bond,hydrogen_bond,0,hydrogen_bond,0,hydrogen_bond,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+9f1e7b01422847f1427347c5792424fe274e6f668b11647a3a18ff192d75ca2e,-9.74,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+0990c5352303826d63c12fe2ef21dee117197630c8609419cb1b5e3fd1aa1b10,-9.009,hydrophobic,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,hydrogen_bond,hydrogen_bond; hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,hydrogen_bond,0,hydrogen_bond,0,hydrophobic,0
+e87f5e1780448964dadb6f79b33db9e7ae18b19a1f29af5b84b6932fccba11b8,-9.169,hydrophobic,hydrogen_bond,0,hydrophobic,0,0,hydrophobic,0,0,0,0,hydrogen_bond,hydrogen_bond; hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,hydrogen_bond,0,hydrogen_bond,0,hydrophobic,0
+99d9c0968728137bb068527c507b0ec6e2363234610395a9150d23c2210fa651,-8.852,0,hydrophobic,0,0,0,0,hydrogen_bond,0,hydrogen_bond,0,0,0,hydrophobic,0,hydrogen_bond,0,0,hydrogen_bond,0,0,0,0,0,0,hydrophobic,0
+3f6f5c8a5a9f8ffb5b3e796960107e2dae467b0943c641e5f4d61df792fe7940,-9.501,0,0,0,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,hydrogen_bond,0,hydrogen_bond,0,hydrophobic,0
+91d5788b7c4ca2772aae4536210ff392dd42ea437bc9839d62a546abbe350240,-8.775,0,hydrogen_bond; hydrophobic,0,0,0,hydrogen_bond,halogen_bond,0,0,0,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0
+93d81b0db4daee9647f5fa06cdd4e54b2c71f7cb5c5f63aa94027350485b5f27,-9.46,hydrophobic,hydrophobic,0,hydrophobic,hydrogen_bond,0,0,0,hydrogen_bond,0,0,0,hydrogen_bond; hydrophobic,0,0,0,0,0,0,0,0,hydrogen_bond,hydrophobic,0,0,0
+ace92d473e7faeb33c51f44b93530d0ee3cfdf3172228a74b356d49b43b6f538,-10.07,hydrophobic,hydrophobic,0,hydrophobic,hydrogen_bond,0,hydrophobic,0,0,0,0,hydrogen_bond,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+0d0124f267a4cb9ee616c378575e6998e0ee5cea851386a9d21e8520a2f6bf01,-9.941,0,0,0,0,0,0,0,0,0,0,0,hydrogen_bond,hydrogen_bond; hydrophobic,0,hydrogen_bond,hydrophobic,0,hydrogen_bond,0,0,hydrogen_bond,0,hydrogen_bond,0,hydrophobic,0
+6e39318c27f8657bf396a3461b5a0c0fb02c882ee49c963fcb28f71473272216,-9.856,0,hydrogen_bond,0,0,hydrogen_bond,hydrogen_bond,hydrogen_bond,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+3d0ea4cb9762c2cf97f6315412c252b2c9075987a84e32a37dce94927eb979de,-9.537,0,hydrogen_bond,0,0,hydrogen_bond,0,hydrogen_bond,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,hydrophobic,0,hydrophobic,0
+a36ffbd0ee161ca23d0049a6194ff2085b0786fda08cf5717498bce6315ec78b,-10.1,0,hydrogen_bond,hydrogen_bond,0,0,0,hydrogen_bond,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+1e71eeb5c718c23d69ded2cec2a467064798542beb58e7e7db5776bdbfba8f9c,-9.173,0,hydrogen_bond,0,hydrophobic,0,0,hydrophobic,0,0,0,hydrogen_bond,0,hydrogen_bond; hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,hydrogen_bond,hydrophobic,0,0,0
+3771866f67a445a87fc3ff72567b59ca0b160e2803499471dac932bce686c344,-9.18,hydrophobic,hydrophobic,0,hydrophobic,hydrogen_bond,0,0,0,0,0,hydrogen_bond,0,0,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+18a260203792d83e5717498257c206b3b7e71cc6ea65c75d62db53bbab934551,-8.97,0,hydrogen_bond; halogen_bond,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,0,0,0,0,0
+183fc1c302dcaeaa96276d7998bec9675e509e2614f410191caeb285fd688142,-8.743,0,hydrogen_bond,0,0,0,0,0,0,hydrogen_bond,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,0,hydrophobic,0,0,0
+73c915e174e07d705d76f943e56264dedca4248359dcc6d9132c8ec458494b1b,-9.035,hydrophobic,0,0,0,0,0,0,0,0,0,hydrogen_bond,hydrogen_bond,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,hydrogen_bond,0,hydrogen_bond,0,hydrophobic,0
+e6c0bce6cedf97d1f6269265cff6ad18d659d1f02c954cda61ccebf98cb93b14,-9.613,0,0,hydrogen_bond,0,hydrogen_bond,0,0,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,0,0,hydrophobic,0
+d07ebbc5cf890c0b376052dfd801e80626eb54d0aeb8384af781cb98403953d0,-9.764,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,0,hydrophobic,0,0,0
+c25acff3a2ef153dc3cd8244ff393d8059d3850294fa53744745ff4336e8fe60,-8.98,0,hydrogen_bond,hydrogen_bond,0,0,0,0,0,0,0,hydrogen_bond,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,hydrogen_bond,0,hydrogen_bond,hydrophobic,0,hydrophobic,0
+01d22c168adea910825873a17dfd3594b0b148636f23ff97a09bf1de152438b1,-9.059,0,0,0,hydrophobic,hydrogen_bond,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrophobic,0,0,hydrophobic,0,hydrogen_bond,0,0,0,hydrogen_bond,hydrophobic,0,0,0
+826256d175ce1cbe80d8199bb36805f90c8dd397ae86bfae4055a3e4cd632259,-9.701,0,hydrogen_bond,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+6699f48d3a8d23ec78ea0623bf78abe80a27a047de145412c1b66979b8467046,-10.86,hydrophobic,hydrogen_bond,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+e624a4f398e84cea74849d1aca19674803274baffd6dc60b0b17ed4c31d720a4,-10.45,0,hydrogen_bond; hydrophobic; pi_cation,hydrogen_bond,hydrophobic,0,0,hydrogen_bond,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond; pi_cation,0,0,0,0,0,0,hydrophobic,0
+a281a48587f143a2be6a6c404642cfc4e28b1ce0ec58264aa2a22681366c0483,-10.34,hydrophobic,hydrogen_bond,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0
+de2fe289e8dc2e076e8e46667b3b2a0809fb2d1ff322d2b26cb75af3ab41f7b4,-9.809,0,0,0,hydrophobic,0,0,0,0,halogen_bond,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond,0,0,0
+a8527e15c74affdbff1d8143b20871b9459ae537e8bee90129cfc9c869840280,-10.09,0,hydrogen_bond; pi_cation,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+09a06be28c54120e6e38af417c82512571f5f76315bb168bfd90a0b5c3b16700,-9.843,0,hydrogen_bond; hydrophobic,0,hydrophobic,0,0,hydrogen_bond; hydrophobic,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond; pi_cation,0,0,0,0,0,0,hydrophobic,0
+341b2190377d7fced156c9574cbd1f8da05208c16647701554fbde275a97b81c,-10.15,0,hydrogen_bond; pi_cation,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrophobic,0,0,0,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+7bbb57ce51fba2a7e3c7a684435ef96d8f998b5b9c8614e5c1fbeccf72de89db,-10.09,0,hydrogen_bond,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,hydrogen_bond,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+60ae9ec7ebbdf26aeda878cfd8229ab2abce49fe43fe1b0db7706b03362cf620,-9.818,0,0,hydrogen_bond,hydrophobic,0,0,hydrophobic,0,0,hydrogen_bond,0,0,hydrophobic,0,0,0,0,hydrogen_bond,0,0,0,0,hydrogen_bond; hydrophobic,0,0,0
+9ff928cd38de3f4b9a6cce15e70ed7dde695aeccc016eb9041851ad077aae4d1,-10.45,0,hydrogen_bond; hydrophobic,0,hydrophobic,hydrogen_bond,0,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,hydrogen_bond,0,0,0,0,hydrogen_bond,hydrophobic,0,hydrophobic,0
+133615953e863c2069da928d6f103f868d2772e408310318913e61ec64cfea4f,-10.04,0,hydrogen_bond; pi_cation,hydrogen_bond,hydrophobic; halogen_bond,0,hydrogen_bond,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+bb3d85f6badbe6a21846118e23292c534da9b51d1913b3050886987d3f3de644,-9.93,0,hydrogen_bond,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrophobic,0,0,hydrophobic,hydrogen_bond,0,0,0,0,0,hydrogen_bond; hydrophobic,0,hydrophobic,0
+d5f3abdb7d0b70e3ad2b732f9598bba7ab2d296940e59e0609c4352b808f8446,-7.468,0,hydrophobic,0,0,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,hydrogen_bond,0,0,0,0,0,0,0,0,0,hydrophobic,0
+c7155f3b77209b2ed28fed8b8da6503ab905be79c4aa00aa45abe3ea1aef4f4f,-10.07,hydrophobic,hydrogen_bond,0,0,0,0,0,0,0,0,0,0,hydrophobic,0,hydrogen_bond,hydrophobic,0,0,0,0,0,0,hydrophobic,0,hydrophobic,0
+3062fe243638e2510709edfd5c246f549ef9d4b7e3b22835aed977b98d5e8d34,-10.23,0,hydrogen_bond; hydrophobic,hydrogen_bond,0,0,0,hydrogen_bond; halogen_bond,0,hydrogen_bond,0,0,0,hydrophobic,0,0,hydrophobic,0,0,0,0,0,hydrogen_bond,0,0,hydrophobic,0
