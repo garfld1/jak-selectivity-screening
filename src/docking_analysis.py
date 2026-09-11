@@ -1,5 +1,7 @@
 """
-docking_analysis_fixed.py
+docking_analysis.py
+
+(this is the updated version to record PLIP interaction types)
 =========================
 Step 3 of 3 in the JAK docking pipeline.
 
@@ -30,20 +32,39 @@ Key fixes vs the original version:
    this scales close to linearly with core count. Uses multiprocessing, not
    threading, since PLIP's global config state and OpenBabel bindings are
    safer isolated per-process than shared across threads in one interpreter.
+8) Complexes are now saved under saved_complexes_PLIP/ (previously
+   saved_complexes/), to keep PLIP-analyzed complexes clearly separated from
+   any other complex outputs.
+9) Per-isoform result CSVs now carry SMILES and delta_pIC50 alongside
+   ligand_id, in addition to the vina_score column. SMILES is pulled
+   straight from the input ligand CSV's "smiles" column. delta_pIC50 is
+   *derived*, not read directly: it's computed from the "JAK1_IC50_nM" and
+   "JAK2_IC50_nM" columns as pIC50(JAK2) - pIC50(JAK1), so more positive
+   values indicate greater JAK2 selectivity.
+10) Residue columns no longer hold a binary 0/1 "did this residue interact
+    at all" flag. Instead each cell holds the exact PLIP interaction type(s)
+    observed for that ligand/residue pair (e.g. "hydrogen_bond" or
+    "hydrophobic;pi_stacking" when more than one type is seen), and is left
+    blank when that residue did not interact with that ligand's pose.
 
 Reads:
   - receptors.json         (prepared receptor paths + docking box center/size)
-  - ligand CSV              (ligand_id + PDBQT columns)
+  - ligand CSV              (ligand_id + PDBQT columns, plus "smiles",
+                              "JAK1_IC50_nM", and "JAK2_IC50_nM" columns used
+                              for reporting / delta_pIC50 only)
 
 For every ligand x isoform pair:
   1) Dock with AutoDock Vina
   2) Parse the top-pose binding score from the Vina log
   3) Convert the top pose PDBQT -> PDB with a direct writer
   4) Merge with a protein-only receptor PDB into a complex file
-  5) Run PLIP on the complex and record every interacting amino acid
+  5) Run PLIP on the complex and record the exact interaction type(s) for
+     every interacting amino acid
 
-Output: one wide CSV per isoform with ligand_id, vina_score, then one binary
-column per residue seen in that isoform.
+Output: one wide CSV per isoform with ligand_id, SMILES, delta_pIC50,
+vina_score, then one column per residue seen in that isoform, holding the
+exact interaction type(s) observed (semicolon-separated if multiple, blank
+if none).
 """
 
 from __future__ import annotations
@@ -58,9 +79,11 @@ import shutil
 import subprocess
 import tempfile
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+
+import math
 
 import pandas as pd
 import tqdm
@@ -73,7 +96,8 @@ from plip.structure.preparation import PDBComplex
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 RECEPTORS_JSON = PROJECT_ROOT / "docking" / "docking_prep" / "receptors.json"
-COMPLEX_OUT_DIR = PROJECT_ROOT / "saved_complexes"
+# (1) Complexes analyzed by PLIP now live in their own, clearly-named folder.
+COMPLEX_OUT_DIR = PROJECT_ROOT / "saved_complexes_PLIP"
 DEFAULT_EXHAUSTIVENESS = 32
 VINA_BIN = os.path.expanduser("~/bin/vina")
 
@@ -81,6 +105,29 @@ VINA_BIN = os.path.expanduser("~/bin/vina")
 LIGAND_RESNAME = "LIG"
 LIGAND_CHAIN_ID = "Z"
 LIGAND_RESSEQ = 1
+
+# Column names expected on the input ligand CSV. Adjust here if your CSV
+# uses different headers.
+LIGAND_ID_COL = "ligand_id"
+LIGAND_PDBQT_COL = "PDBQT"
+LIGAND_SMILES_COL = "smiles"
+LIGAND_JAK1_IC50_NM_COL = "JAK1_IC50_nM"
+LIGAND_JAK2_IC50_NM_COL = "JAK2_IC50_nM"
+
+# delta_pIC50 is not a column on the input CSV -- it's derived from the
+# JAK1/JAK2 IC50 (nM) columns as:
+#     pIC50 = 9 - log10(IC50_nM)          [i.e. -log10(IC50 in molar)]
+#     delta_pIC50 = pIC50(JAK2) - pIC50(JAK1)
+# A compound that is more JAK2-selective is more potent on JAK2 (smaller
+# JAK2_IC50_nM -> larger pIC50(JAK2)) and/or less potent on JAK1 (larger
+# JAK1_IC50_nM -> smaller pIC50(JAK1)), so this difference increases as
+# JAK2 selectivity increases -- matching "more positive = more JAK2
+# selective."
+
+# Separator used when more than one interaction type is observed between a
+# given ligand pose and a given residue (e.g. both a hydrogen bond and a
+# hydrophobic contact to the same residue).
+INTERACTION_TYPE_SEP = ";"
 
 # Residue names to strip from the receptor before merging with the docked
 # ligand. These are modified/non-canonical residues and crystallographic
@@ -114,6 +161,35 @@ AD_TYPE_TO_ELEMENT = {
 # installed plip package (plip/structure/detection.py); getattr() on a wrong
 # name returns None silently, so a mismatch here does not raise an error --
 # it just quietly drops that whole interaction type from every result.
+def _ic50_nm_to_pic50(ic50_nm) -> Optional[float]:
+    """
+    Convert an IC50 in nanomolar to pIC50 = -log10(IC50 in molar)
+    = 9 - log10(IC50_nM). Returns None for missing/non-positive/unparsable
+    values rather than raising, since a single bad IC50 shouldn't take down
+    delta_pIC50 for every ligand.
+    """
+    try:
+        val = float(ic50_nm)
+    except (TypeError, ValueError):
+        return None
+    if val <= 0 or math.isnan(val):
+        return None
+    return 9.0 - math.log10(val)
+
+def compute_delta_pic50(jak1_ic50_nm, jak2_ic50_nm) -> Optional[float]:
+    """
+    delta_pIC50 = pIC50(JAK2) - pIC50(JAK1).
+
+    More positive => more potent on JAK2 relative to JAK1 => more
+    JAK2-selective. Returns None if either IC50 is missing/invalid so a
+    partial row doesn't silently produce a misleading number.
+    """
+    pic50_jak1 = _ic50_nm_to_pic50(jak1_ic50_nm)
+    pic50_jak2 = _ic50_nm_to_pic50(jak2_ic50_nm)
+    if pic50_jak1 is None or pic50_jak2 is None:
+        return None
+    return pic50_jak2 - pic50_jak1
+
 PLIP_ATTRS = {
     "hbonds_pdon": "hydrogen_bond",         # protein is the H-bond donor
     "hbonds_ldon": "hydrogen_bond",         # ligand is the H-bond donor
@@ -139,9 +215,9 @@ def dock_with_vina(
     log_path: str,
     center: Tuple[float, float, float],
     size: Tuple[float, float, float],
-    exhaustiveness: int = 32,
+    exhaustiveness: int = 16,
     cpu: int = 1,
-    timeout: int = 300,
+    timeout: int = 900,
 ) -> None:
     if not os.path.exists(VINA_BIN):
         raise RuntimeError(f"Vina binary not found at {VINA_BIN}")
@@ -327,18 +403,25 @@ def write_complex_pdb(protein_pdb_text: str, ligand_pdb_text: str, out_path: str
 # PLIP ANALYSIS
 # ============================================================
 
-def run_plip_all_residues(complex_pdb: str) -> List[str]:
+def run_plip_all_residues(complex_pdb: str) -> Dict[str, set]:
     """
-    Run PLIP on a receptor-ligand complex and return the sorted list of every
-    interacting amino-acid residue label.
+    Run PLIP on a receptor-ligand complex and return a mapping of
+    residue label (e.g. "TYR231") -> set of exact PLIP interaction type
+    labels observed for that residue (e.g. {"hydrogen_bond", "hydrophobic"}).
+
+    This replaces the old binary "did this residue interact at all" flag:
+    callers now get the precise interaction type(s) per residue instead of
+    a single 0/1 flag, so a residue that forms both a hydrogen bond and a
+    hydrophobic contact is distinguishable from one that only does one or
+    the other.
     """
     pc = PDBComplex()
     pc.load_pdb(complex_pdb)
     pc.analyze()
 
-    interacting = set()
+    interacting: Dict[str, set] = {}
     for _, interactions in pc.interaction_sets.items():
-        for attr in PLIP_ATTRS:
+        for attr, interaction_label in PLIP_ATTRS.items():
             arr = getattr(interactions, attr, None)
             if not arr:
                 continue
@@ -347,10 +430,11 @@ def run_plip_all_residues(complex_pdb: str) -> List[str]:
                 restype = getattr(entry, "restype", None) or getattr(entry, "resname", None) or getattr(entry, "residue", None)
                 if restype and resnr:
                     try:
-                        interacting.add(f"{str(restype).upper()}{int(resnr)}")
+                        res_label = f"{str(restype).upper()}{int(resnr)}"
                     except (TypeError, ValueError):
-                        pass
-    return sorted(interacting)
+                        continue
+                    interacting.setdefault(res_label, set()).add(interaction_label)
+    return interacting
 
 # ============================================================
 # PER-JOB WORKER (runs inside a worker process)
@@ -367,6 +451,8 @@ class DockJob:
     receptor: Dict
     exhaustiveness: int
     cpu_per_job: int
+    smiles: Optional[str] = None
+    delta_pic50: Optional[float] = None
 
 def _run_one_job(job: DockJob) -> Dict:
     """
@@ -413,26 +499,111 @@ def _run_one_job(job: DockJob) -> Dict:
 
         write_complex_pdb(protein_pdb_text, ligand_pose_pdb, str(saved_complex_path))
 
-        residues = run_plip_all_residues(str(saved_complex_path))
+        residue_interactions = run_plip_all_residues(str(saved_complex_path))
 
         return {
             "ligand_id": job.ligand_id,
+            "smiles": job.smiles,
+            "delta_pic50": job.delta_pic50,
             "iso_name": job.iso_name,
             "vina_score": score,
-            "residues": set(residues),
+            "residue_interactions": residue_interactions,
             "error": None,
         }
 
     except Exception as e:
         return {
             "ligand_id": job.ligand_id,
+            "smiles": job.smiles,
+            "delta_pic50": job.delta_pic50,
             "iso_name": job.iso_name,
             "vina_score": None,
-            "residues": set(),
+            "residue_interactions": {},
             "error": str(e),
         }
     finally:
         shutil.rmtree(job_dir, ignore_errors=True)
+
+# ============================================================
+# CHECKPOINT / RESUME HELPERS
+# ============================================================
+
+def _checkpoint_key(ligand_id: str, iso_name: str) -> Tuple[str, str]:
+    return (str(ligand_id), str(iso_name))
+
+
+def _serialize_checkpoint_result(result: Dict) -> Dict:
+    """Make a completed result JSON-serializable for persistent checkpointing."""
+    out = dict(result)
+    interactions = result.get("residue_interactions", {}) or {}
+    out["residue_interactions"] = {
+        str(res): sorted(str(x) for x in types)
+        for res, types in interactions.items()
+    }
+    return out
+
+
+def _deserialize_checkpoint_result(record: Dict) -> Dict:
+    """Restore residue-interaction lists from JSON back to sets."""
+    out = dict(record)
+    interactions = record.get("residue_interactions", {}) or {}
+    out["residue_interactions"] = {
+        str(res): set(types)
+        for res, types in interactions.items()
+    }
+    return out
+
+
+def load_checkpoint(checkpoint_path: Path) -> Tuple[List[Dict], set]:
+    """Load successful completed jobs from a JSONL checkpoint file."""
+    records: List[Dict] = []
+    completed = set()
+    if not checkpoint_path.exists():
+        return records, completed
+
+    with open(checkpoint_path, "r") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = _deserialize_checkpoint_result(json.loads(line))
+            except (json.JSONDecodeError, TypeError, ValueError):
+                # Ignore a malformed/incomplete final line rather than losing
+                # the rest of the checkpoint.
+                continue
+
+            # Only successful jobs are resumable. Failed jobs should be retried
+            # on the next run rather than permanently skipped.
+            if record.get("error") is not None:
+                continue
+
+            key = _checkpoint_key(record["ligand_id"], record["iso_name"])
+            if key in completed:
+                continue
+            records.append(record)
+            completed.add(key)
+
+    return records, completed
+
+
+def append_checkpoint(checkpoint_path: Path, result: Dict) -> None:
+    """Append one successful completed job atomically enough for normal use."""
+    record = _serialize_checkpoint_result(result)
+    tmp_path = checkpoint_path.with_suffix(checkpoint_path.suffix + ".tmp")
+    # Write the new JSON record to a temporary file, then append its contents.
+    # The checkpoint is deliberately append-only so a stopped run retains all
+    # previously completed jobs.
+    with open(tmp_path, "w") as f:
+        f.write(json.dumps(record, separators=(",", ":")) + "\n")
+        f.flush()
+        os.fsync(f.fileno())
+    with open(checkpoint_path, "a") as f:
+        f.write(tmp_path.read_text())
+        f.flush()
+        os.fsync(f.fileno())
+    tmp_path.unlink(missing_ok=True)
+
 
 # ============================================================
 # MAIN DOCKING + ANALYSIS LOOP
@@ -441,10 +612,15 @@ def _run_one_job(job: DockJob) -> Dict:
 def dock_and_analyze_all(
     ligand_df: pd.DataFrame,
     receptor_map: Dict[str, Dict],
-    ligand_id_col: str = "ligand_id",
-    pdbqt_col: str = "PDBQT",
+    ligand_id_col: str = LIGAND_ID_COL,
+    pdbqt_col: str = LIGAND_PDBQT_COL,
+    smiles_col: str = LIGAND_SMILES_COL,
+    jak1_ic50_col: str = LIGAND_JAK1_IC50_NM_COL,
+    jak2_ic50_col: str = LIGAND_JAK2_IC50_NM_COL,
     workers: int = 1,
     cpu_per_job: int = 1,
+    checkpoint_path: Optional[Path] = None,
+    resume: bool = False,
 ) -> Dict[str, pd.DataFrame]:
     """
     workers: number of (ligand, isoform) jobs to run concurrently, each in
@@ -458,20 +634,54 @@ def dock_and_analyze_all(
     """
     COMPLEX_OUT_DIR.mkdir(parents=True, exist_ok=True)
 
+    has_smiles = smiles_col in ligand_df.columns
+    has_jak1_ic50 = jak1_ic50_col in ligand_df.columns
+    has_jak2_ic50 = jak2_ic50_col in ligand_df.columns
+    if not has_smiles:
+        print(f"[!] Ligand CSV has no '{smiles_col}' column -- SMILES will be blank in the output.")
+    if not (has_jak1_ic50 and has_jak2_ic50):
+        missing = [c for c, present in [(jak1_ic50_col, has_jak1_ic50), (jak2_ic50_col, has_jak2_ic50)] if not present]
+        print(f"[!] Ligand CSV missing {missing} -- delta_pIC50 will be blank in the output.")
+
     jobs: List[DockJob] = []
+    # Per-isoform accumulated results. When --resume is enabled, successful
+    # jobs from the checkpoint are loaded here and omitted from the new job list.
     raw_results: Dict[str, List[Dict]] = {iso: [] for iso in receptor_map}
+    completed_keys = set()
+
+    if resume and checkpoint_path is not None:
+        checkpoint_records, completed_keys = load_checkpoint(checkpoint_path)
+        for record in checkpoint_records:
+            iso_name = record.get("iso_name")
+            if iso_name in raw_results:
+                raw_results[iso_name].append(record)
+        print(f"Resuming: loaded {len(completed_keys)} completed docking jobs from {checkpoint_path}")
 
     for _, row in ligand_df.iterrows():
         lig_id = str(row[ligand_id_col])
         lig_pdbqt_str = row[pdbqt_col]
+        lig_smiles = row[smiles_col] if has_smiles else None
+        lig_delta_pic50 = (
+            compute_delta_pic50(row[jak1_ic50_col], row[jak2_ic50_col])
+            if (has_jak1_ic50 and has_jak2_ic50)
+            else None
+        )
 
         if not isinstance(lig_pdbqt_str, str) or not lig_pdbqt_str.strip():
             print(f"[!] Skipping {lig_id}: no PDBQT available.")
             for iso_name in receptor_map:
-                raw_results[iso_name].append({"ligand_id": lig_id, "vina_score": None, "residues": set()})
+                raw_results[iso_name].append({
+                    "ligand_id": lig_id,
+                    "smiles": lig_smiles,
+                    "delta_pic50": lig_delta_pic50,
+                    "vina_score": None,
+                    "residue_interactions": {},
+                })
             continue
 
         for iso_name, rec in receptor_map.items():
+            if _checkpoint_key(lig_id, iso_name) in completed_keys:
+                continue
             jobs.append(DockJob(
                 ligand_id=lig_id,
                 ligand_pdbqt=lig_pdbqt_str,
@@ -479,6 +689,8 @@ def dock_and_analyze_all(
                 receptor=rec,
                 exhaustiveness=rec.get("exhaustiveness", DEFAULT_EXHAUSTIVENESS),
                 cpu_per_job=cpu_per_job,
+                smiles=lig_smiles,
+                delta_pic50=lig_delta_pic50,
             ))
 
     print(
@@ -495,35 +707,66 @@ def dock_and_analyze_all(
                 result = _run_one_job(job)
                 if result["error"]:
                     print(f"\nERROR docking {result['ligand_id']} x {result['iso_name']}: {result['error']}")
+                else:
+                    if checkpoint_path is not None:
+                        append_checkpoint(checkpoint_path, result)
+                    completed_keys.add(_checkpoint_key(result["ligand_id"], result["iso_name"]))
                 raw_results[result["iso_name"]].append(result)
                 pbar.update(1)
     else:
         # multiprocessing (not threading): PLIP keeps some global config
         # state and relies on OpenBabel, which is safer isolated in separate
         # processes than shared across threads in one interpreter.
-        with cf.ProcessPoolExecutor(max_workers=workers) as executor:
-            futures = [executor.submit(_run_one_job, job) for job in jobs]
+        executor = cf.ProcessPoolExecutor(max_workers=workers)
+        futures = [executor.submit(_run_one_job, job) for job in jobs]
+        try:
             with tqdm.tqdm(total=len(jobs), desc="DOCKING") as pbar:
                 for future in cf.as_completed(futures):
                     result = future.result()
                     if result["error"]:
                         print(f"\nERROR docking {result['ligand_id']} x {result['iso_name']}: {result['error']}")
+                    else:
+                        if checkpoint_path is not None:
+                            append_checkpoint(checkpoint_path, result)
+                        completed_keys.add(_checkpoint_key(result["ligand_id"], result["iso_name"]))
                     raw_results[result["iso_name"]].append(result)
                     pbar.update(1)
+        except KeyboardInterrupt:
+            print("\nStopping requested. Completed jobs have already been checkpointed; rerun with --resume to continue.")
+            # Cancel work that has not started yet. Jobs already running may
+            # finish, but their results will be checkpointed only if returned.
+            executor.shutdown(wait=False, cancel_futures=True)
+            raise
+        else:
+            executor.shutdown(wait=True)
 
     wide_results: Dict[str, pd.DataFrame] = {}
     for iso_name, records in raw_results.items():
-        all_residues = sorted({r for rec in records for r in rec["residues"]})
+        # Union of every residue seen across all ligands for this isoform.
+        all_residues = sorted({
+            res
+            for rec in records
+            for res in rec["residue_interactions"].keys()
+        })
 
         rows = []
         for rec in records:
-            row = {"ligand_id": rec["ligand_id"], "vina_score": rec["vina_score"]}
+            row = {
+                "ligand_id": rec["ligand_id"],
+                "SMILES": rec.get("smiles"),
+                "delta_pIC50": rec.get("delta_pic50"),
+                "vina_score": rec["vina_score"],
+            }
+            res_interactions = rec["residue_interactions"]
             for res in all_residues:
-                row[res] = 1 if res in rec["residues"] else 0
+                types = res_interactions.get(res)
+                # Exact interaction type(s) instead of a binary 0/1 flag.
+                # Blank when this residue did not interact with this ligand.
+                row[res] = INTERACTION_TYPE_SEP.join(sorted(types)) if types else ""
             rows.append(row)
 
         df = pd.DataFrame(rows)
-        ordered_cols = ["ligand_id", "vina_score"] + all_residues
+        ordered_cols = ["ligand_id", "SMILES", "delta_pIC50", "vina_score"] + all_residues
         df = df.reindex(columns=ordered_cols)
         wide_results[iso_name] = df
 
@@ -548,7 +791,20 @@ def main() -> None:
         help="Threads Vina uses per docking call (its --cpu flag). Keep small "
              "when --workers > 1 to avoid oversubscribing cores.",
     )
+    parser.add_argument(
+        "--resume", action="store_true",
+        help="Resume from the persistent JSONL checkpoint in --outdir. Successful jobs are skipped.",
+    )
     args = parser.parse_args()
+
+    outdir = Path(args.outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    checkpoint_path = outdir / "docking_checkpoint.jsonl"
+
+    # A run without --resume is a fresh run: do not accidentally reuse a
+    # checkpoint from an older run that may have used different inputs/settings.
+    if not args.resume and checkpoint_path.exists():
+        checkpoint_path.unlink()
 
     with open(args.receptors, "r") as f:
         receptor_map = json.load(f)
@@ -559,14 +815,15 @@ def main() -> None:
         receptor_map,
         workers=args.workers,
         cpu_per_job=args.cpu_per_job,
+        checkpoint_path=checkpoint_path,
+        resume=args.resume,
     )
 
-    outdir = Path(args.outdir)
-    outdir.mkdir(parents=True, exist_ok=True)
     for iso_name, df in wide_results.items():
         out_path = outdir / f"{iso_name}_docking_results.csv"
         df.to_csv(out_path, index=False)
-        print(f"Wrote {out_path} ({df.shape[0]} ligands x {df.shape[1] - 2} residue columns)")
+        # -4 for ligand_id, SMILES, delta_pIC50, vina_score
+        print(f"Wrote {out_path} ({df.shape[0]} ligands x {df.shape[1] - 4} residue columns)")
 
 if __name__ == "__main__":
     main()
