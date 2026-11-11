@@ -1,0 +1,15 @@
+2026-11-04 18:57:31,819 Running colabfold 1.6.3 (23a0b961419573a5debbd92f9b85582792c0f4f4)
+2026-11-04 18:57:31,840 WARNING: no GPU detected, will be using CPU
+2026-11-04 18:57:31,896 Found 8 citations for tools or databases
+2026-11-04 18:57:31,930 Adding missing field revision_date to /Users/shreechatterjee/jak-selectivity-screening/results/colabfold_jak/JAK1_jh1/custom_template/4ei4.cif. Backing up original file to /Users/shreechatterjee/jak-selectivity-screening/results/colabfold_jak/JAK1_jh1/custom_template/4ei4.cif.bak.
+2026-11-04 18:57:31,966 Query 1/1: JAK1_jh1 (length 279)
+2026-11-04 18:57:36,191 Sequence 0 found templates: ['4ei4_A', '4ei4_A']
+2026-11-04 18:57:37,099 Setting max_seq=512, max_extra_seq=5120
+2026-11-04 19:05:06,738 alphafold2_ptm_model_1_seed_000 recycle=0 pLDDT=93.5 pTM=0.921
+2026-11-04 19:12:13,448 alphafold2_ptm_model_1_seed_000 recycle=1 pLDDT=93.8 pTM=0.926 tol=0.266
+2026-11-04 19:19:17,734 alphafold2_ptm_model_1_seed_000 recycle=2 pLDDT=94 pTM=0.927 tol=0.18
+2026-11-04 19:26:20,510 alphafold2_ptm_model_1_seed_000 recycle=3 pLDDT=94.2 pTM=0.928 tol=0.0759
+2026-11-04 19:26:20,513 alphafold2_ptm_model_1_seed_000 took 1719.2s (3 recycles)
+2026-11-04 19:26:20,524 reranking models by 'plddt' metric
+2026-11-04 19:26:20,524 rank_001_alphafold2_ptm_model_1_seed_000 pLDDT=94.2 pTM=0.928
+2026-11-04 19:26:20,651 Done

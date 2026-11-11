@@ -1,0 +1,18 @@
+RBT_PARAMETER_FILE_V1.00
+TITLE JAK1 Vina-matched sphere cavity
+RECEPTOR_FILE /Users/shreechatterjee/jak-selectivity-screening/docking/receptors/colabfold/rdock/JAK1_protein.mol2
+SECTION MAPPER
+    SITE_MAPPER RbtSphereSiteMapper
+    CENTER 6.913700103759766,57.60139846801758,0.8156000375747681
+    RADIUS 10
+    SMALL_SPHERE 1
+    LARGE_SPHERE 4
+    MIN_VOLUME 100
+    MAX_CAVITIES 1
+    VOL_INCR 0.0
+    GRIDSTEP 0.5
+END_SECTION
+SECTION CAVITY
+    SCORING_FUNCTION RbtCavityGridSF
+    WEIGHT 1.0
+END_SECTION

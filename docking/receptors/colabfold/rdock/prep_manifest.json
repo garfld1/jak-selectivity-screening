@@ -1,0 +1,40 @@
+[
+  {
+    "target": "JAK1",
+    "mol2": "docking/receptors/colabfold/rdock/JAK1_protein.mol2",
+    "prm": "docking/receptors/colabfold/rdock/JAK1.prm",
+    "as": "docking/receptors/colabfold/rdock/JAK1.as",
+    "ptr_mode": "tyr",
+    "center": [
+      6.913700103759766,
+      57.60139846801758,
+      0.8156000375747681
+    ],
+    "radius": 10.0,
+    "mapper": "RbtSphereSiteMapper",
+    "rbcavity_volume_lines": [
+      "Total volume 959.875 A^3",
+      "Cavity #1\tSize=7679 points; Vol=959.875 A^3; Min=(-2,48,-7); Max=(16,65,10.5); Center=(7.35057,55.8621,0.919651); Extent=(18,17,17.5)"
+    ],
+    "n_rbcavity_warnings": 1
+  },
+  {
+    "target": "JAK2",
+    "mol2": "docking/receptors/colabfold/rdock/JAK2_protein.mol2",
+    "prm": "docking/receptors/colabfold/rdock/JAK2.prm",
+    "as": "docking/receptors/colabfold/rdock/JAK2.as",
+    "ptr_mode": "tyr",
+    "center": [
+      57.83145523071289,
+      9.40494441986084,
+      5.232999801635742
+    ],
+    "radius": 10.0,
+    "mapper": "RbtSphereSiteMapper",
+    "rbcavity_volume_lines": [
+      "Total volume 1128.25 A^3",
+      "Cavity #1\tSize=9026 points; Vol=1128.25 A^3; Min=(48.5,1,-4); Max=(65,17,13.5); Center=(56.5781,8.92045,4.41873); Extent=(16.5,16,17.5)"
+    ],
+    "n_rbcavity_warnings": 1
+  }
+]

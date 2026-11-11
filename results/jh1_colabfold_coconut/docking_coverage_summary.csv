@@ -1,0 +1,5 @@
+target,engine,n_ligands,n_poses_mean,n_poses_median,n_poses_min,n_poses_max,n_type_columns_top1,n_type_columns_frequency_top5,n_type_columns_frequency_top10,n_residue_columns_top1,n_residue_columns_frequency_top5,n_residue_columns_frequency_top10
+JAK1,vina,4863,9.95949002673247,10.0,8,10,85,99,100,39,45,46
+JAK1,rdock,4870,9.950102669404517,10.0,3,10,76,85,89,38,38,40
+JAK2,vina,4863,9.968126670779354,10.0,8,10,85,97,102,41,41,41
+JAK2,rdock,4870,9.98870636550308,10.0,5,10,78,85,89,38,38,38

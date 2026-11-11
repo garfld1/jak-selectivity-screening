@@ -1,0 +1,40 @@
+JAK ColabFold template report
+================================================================================
+The folded sequence is the supplied query, written unchanged into the FASTA.
+The crystal is passed to ColabFold as a custom template for the overlapping region.
+
+Job: JAK2_jh1
+Protein: JAK2
+Construct: jh1
+Template PDB: 4JI9
+Template CIF: /Users/shreechatterjee/jak-selectivity-screening/Crystal Structures/JAK2_4JI9.cif
+Template copied to: /Users/shreechatterjee/jak-selectivity-screening/results/colabfold_jak/JAK2_jh1/custom_template/4ji9.cif
+Template entity selected: entity_1
+Query FASTA: /Users/shreechatterjee/jak-selectivity-screening/results/colabfold_jak/JAK2_jh1/JAK2_jh1.fasta
+Query header: JAK2_jh1
+Full-length sequence: 1132 aa
+JH1 definition on the full-length sequence: 849-1124
+Folded query on the full-length sequence: 849-1124 (276 aa)
+Template sequence length: 300 aa
+Template placement on the full-length sequence: 833-1132
+Overlap used for this query: 849-1124
+Fraction of the query covered by the crystal: 1.0000
+Comparable positions in the full-length placement: 300
+Matches in the full-length placement: 300
+Mismatches in the full-length placement: 0
+Identity of the full-length placement: 1.0000
+Mismatch fraction of the full-length placement: 0.0000
+Identity inside the folded query: 1.0000
+Mismatches inside the folded query: 0
+Residues changed in the query FASTA: 0
+
+Nonstandard crystal residues compared as their parent amino acid
+--------------------------------------------------------------------------------
+template_pos_1based	mon_id	compared_as	full_pos_1based
+175	PTR	Y	1007
+176	PTR	Y	1008
+
+Phosphotyrosine is scored as tyrosine. ColabFold's template reader uses standard amino acids, so the activation-loop phosphotyrosines can be left out of the template coordinates. The query still has tyrosine there.
+
+No mismatches inside the folded query.
+

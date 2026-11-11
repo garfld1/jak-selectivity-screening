@@ -1,0 +1,62 @@
+{
+  "JAK1": {
+    "pdb": "docking/receptors/colabfold/prepared_receptors/pdb/JAK1.pdb",
+    "pdbqt": "docking/receptors/colabfold/prepared_receptors/pdbqt/JAK1.pdbqt",
+    "center": [
+      6.913700103759766,
+      57.60139846801758,
+      0.8156000375747681
+    ],
+    "size": [
+      20.0,
+      20.0,
+      20.0
+    ],
+    "exhaustiveness": 16,
+    "detected_ligand_resname": "0Q2",
+    "detected_ligand_chain": "A",
+    "detected_ligand_natoms": 20,
+    "source": "colabfold",
+    "crystal": "Crystal Structures/JAK1_4EI4.cif",
+    "residue_numbering": "full_length",
+    "residue_offset_applied": 874,
+    "model_pdb": "Crystal Structures/colabfold_jh1/JAK1_jh1.pdb",
+    "aligned_pdb": "Crystal Structures/colabfold_jh1/JAK1_jh1_aligned_to_4EI4.pdb",
+    "aligned_to": "Crystal Structures/JAK1_4EI4.cif",
+    "superposition_ca_rmsd": null,
+    "superposition_n_ca": null,
+    "rdock_prm": "docking/receptors/colabfold/rdock/JAK1.prm",
+    "rdock_as": "docking/receptors/colabfold/rdock/JAK1.as",
+    "rdock_mol2": "docking/receptors/colabfold/rdock/JAK1_protein.mol2"
+  },
+  "JAK2": {
+    "pdb": "docking/receptors/colabfold/prepared_receptors/pdb/JAK2.pdb",
+    "pdbqt": "docking/receptors/colabfold/prepared_receptors/pdbqt/JAK2.pdbqt",
+    "center": [
+      57.83145523071289,
+      9.40494441986084,
+      5.232999801635742
+    ],
+    "size": [
+      20.0,
+      20.0,
+      20.0
+    ],
+    "exhaustiveness": 16,
+    "detected_ligand_resname": "1M3",
+    "detected_ligand_chain": "A",
+    "detected_ligand_natoms": 36,
+    "source": "colabfold",
+    "crystal": "Crystal Structures/JAK2_4JI9.cif",
+    "residue_numbering": "full_length",
+    "residue_offset_applied": 848,
+    "model_pdb": "Crystal Structures/colabfold_jh1/JAK2_jh1.pdb",
+    "aligned_pdb": "Crystal Structures/colabfold_jh1/JAK2_jh1_aligned_to_4JI9.pdb",
+    "aligned_to": "Crystal Structures/JAK2_4JI9.cif",
+    "superposition_ca_rmsd": null,
+    "superposition_n_ca": null,
+    "rdock_prm": "docking/receptors/colabfold/rdock/JAK2.prm",
+    "rdock_as": "docking/receptors/colabfold/rdock/JAK2.as",
+    "rdock_mol2": "docking/receptors/colabfold/rdock/JAK2_protein.mol2"
+  }
+}

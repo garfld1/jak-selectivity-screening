@@ -1,0 +1,40 @@
+{
+  "JAK1": {
+    "model_pdb": "Crystal Structures/colabfold_jh1/JAK1_jh1.pdb",
+    "aligned_pdb": "Crystal Structures/colabfold_jh1/JAK1_jh1_aligned_to_4EI4.pdb",
+    "crystal": "Crystal Structures/JAK1_4EI4.cif",
+    "jh1": "875-1153",
+    "overlap": "875-1153",
+    "ca_rmsd": 0.5528216344797716,
+    "n_ca": 268,
+    "ligand": {
+      "resname": "0Q2",
+      "chain": "A",
+      "n_atoms": 20,
+      "centroid": [
+        6.913700103759766,
+        57.60139846801758,
+        0.8156000375747681
+      ]
+    }
+  },
+  "JAK2": {
+    "model_pdb": "Crystal Structures/colabfold_jh1/JAK2_jh1.pdb",
+    "aligned_pdb": "Crystal Structures/colabfold_jh1/JAK2_jh1_aligned_to_4JI9.pdb",
+    "crystal": "Crystal Structures/JAK2_4JI9.cif",
+    "jh1": "849-1124",
+    "overlap": "849-1124",
+    "ca_rmsd": 0.5327018875536219,
+    "n_ca": 272,
+    "ligand": {
+      "resname": "1M3",
+      "chain": "A",
+      "n_atoms": 36,
+      "centroid": [
+        57.83145523071289,
+        9.40494441986084,
+        5.232999801635742
+      ]
+    }
+  }
+}

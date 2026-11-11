@@ -4,5 +4,36 @@ __pycache__/
 .env
 .DS_Store
 
+.venv/
+.pytest_cache/
+
 data/raw/
 models/
+
+# Docking poses and resume state
+results/**/saved_complexes_PLIP/
+results/**/poses/
+results/**/docking_checkpoint.jsonl
+
+# Prepared-ligand intermediates
+results/**/*_prepared.csv
+
+# Fitted models belong in models/
+results/**/*.joblib
+results/**/*.pkl
+
+# ColabFold search intermediates
+results/**/*_env/
+results/**/*.a3m
+results/**/*.ffindex
+results/**/*.ffdata
+results/**/*.m8
+results/**/*.cif.bak
+results/**/out.tar.gz
+
+# Smoke runs and bulky run logs
+results/**/*_smoke/
+results/**/*.log
+
+# Local installer
+Miniforge3-*.sh
