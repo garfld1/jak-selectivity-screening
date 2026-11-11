@@ -35,5 +35,9 @@ results/**/out.tar.gz
 results/**/*_smoke/
 results/**/*.log
 
-# Local installer
-Miniforge3-*.sh
+# Docking and interaction-analysis notebooks
+notebooks/05_docking_run.ipynb
+notebooks/06_interaction_analysis.ipynb
+
+# Local Miniforge installers, any folder
+*[Mm]iniforge*
