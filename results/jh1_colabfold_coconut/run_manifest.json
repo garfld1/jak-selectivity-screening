@@ -1,0 +1,130 @@
+{
+  "config_hash": "2e8212d4a2382173",
+  "config_version": 1,
+  "input": "/Users/shreechatterjee/jak-selectivity-screening/results/coconut_screen/top_1pct_coconut.csv",
+  "input_sha256": "cefddf071a776f8d6b775f779a2e54fcf879e6ef3ffce97fca8d81d2b7a6e357",
+  "receptors_json": "/Users/shreechatterjee/jak-selectivity-screening/jh1_dual_engine/receptors/colabfold/receptors.json",
+  "receptor_source": {
+    "JAK1": "colabfold",
+    "JAK2": "colabfold"
+  },
+  "boxes": {
+    "JAK1": {
+      "center": [
+        6.913700103759766,
+        57.60139846801758,
+        0.8156000375747681
+      ],
+      "size": [
+        20.0,
+        20.0,
+        20.0
+      ]
+    },
+    "JAK2": {
+      "center": [
+        57.83145523071289,
+        9.40494441986084,
+        5.232999801635742
+      ],
+      "size": [
+        20.0,
+        20.0,
+        20.0
+      ]
+    }
+  },
+  "n_ligands": 5043,
+  "limit": null,
+  "targets": [
+    "JAK1",
+    "JAK2"
+  ],
+  "engines": [
+    "vina",
+    "rdock"
+  ],
+  "carry_columns": [
+    "predicted_delta_pIC50",
+    "QSAR_rank"
+  ],
+  "num_poses": 10,
+  "frequency_windows": [
+    5,
+    10
+  ],
+  "vina_exhaustiveness": {
+    "JAK1": 16,
+    "JAK2": 16
+  },
+  "vina_energy_range": 10.0,
+  "vina_min_rmsd": 1.0,
+  "rdock_runs": 50,
+  "rdock_cluster_rmsd": 1.0,
+  "rdock_protocol": "dock.prm",
+  "saved_poses": false,
+  "n_successful_jobs": 19466,
+  "n_failed_jobs": 706,
+  "coverage": [
+    {
+      "target": "JAK1",
+      "engine": "vina",
+      "n_ligands": 4863,
+      "n_poses_mean": 9.95949002673247,
+      "n_poses_median": 10.0,
+      "n_poses_min": 8,
+      "n_poses_max": 10,
+      "n_type_columns_top1": 85,
+      "n_type_columns_frequency_top5": 99,
+      "n_type_columns_frequency_top10": 100,
+      "n_residue_columns_top1": 39,
+      "n_residue_columns_frequency_top5": 45,
+      "n_residue_columns_frequency_top10": 46
+    },
+    {
+      "target": "JAK1",
+      "engine": "rdock",
+      "n_ligands": 4870,
+      "n_poses_mean": 9.950102669404517,
+      "n_poses_median": 10.0,
+      "n_poses_min": 3,
+      "n_poses_max": 10,
+      "n_type_columns_top1": 76,
+      "n_type_columns_frequency_top5": 85,
+      "n_type_columns_frequency_top10": 89,
+      "n_residue_columns_top1": 38,
+      "n_residue_columns_frequency_top5": 38,
+      "n_residue_columns_frequency_top10": 40
+    },
+    {
+      "target": "JAK2",
+      "engine": "vina",
+      "n_ligands": 4863,
+      "n_poses_mean": 9.968126670779354,
+      "n_poses_median": 10.0,
+      "n_poses_min": 8,
+      "n_poses_max": 10,
+      "n_type_columns_top1": 85,
+      "n_type_columns_frequency_top5": 97,
+      "n_type_columns_frequency_top10": 102,
+      "n_residue_columns_top1": 41,
+      "n_residue_columns_frequency_top5": 41,
+      "n_residue_columns_frequency_top10": 41
+    },
+    {
+      "target": "JAK2",
+      "engine": "rdock",
+      "n_ligands": 4870,
+      "n_poses_mean": 9.98870636550308,
+      "n_poses_median": 10.0,
+      "n_poses_min": 5,
+      "n_poses_max": 10,
+      "n_type_columns_top1": 78,
+      "n_type_columns_frequency_top5": 85,
+      "n_type_columns_frequency_top10": 89,
+      "n_residue_columns_top1": 38,
+      "n_residue_columns_frequency_top5": 38,
+      "n_residue_columns_frequency_top10": 38
+    }
+  ]
+}

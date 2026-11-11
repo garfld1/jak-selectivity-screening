@@ -373,7 +373,7 @@ def run_qsar_cv(
     model: ModelName = "rf",
     split: SplitStrategy = "scaffold",
     fp_type: FpType = "binary",
-    output_dir: str = "results/qsar_training",
+    output_dir: str = "results/qsar",
     n_folds: int = 5,
 ) -> dict:
     t0 = perf_counter()
@@ -470,8 +470,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--output-dir",
-        default="results/qsar_training",
-        help="Directory for metrics, predictions, plots, and logs (default: results/qsar_training)",
+        default="results/qsar",
+        help="Directory for metrics, predictions, plots, and logs (default: results/qsar)",
     )
     parser.add_argument(
         "--model",
