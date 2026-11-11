@@ -1,0 +1,13 @@
+{
+  "n_validation_ligands": 2790,
+  "threshold_fold": 5.0,
+  "threshold_delta_pKi": 0.6989700043360189,
+  "n_candidates_evaluated": 11565,
+  "class_counts": {
+    "NONSELECTIVE": 2298,
+    "JAK2_SELECTIVE": 286,
+    "JAK1_SELECTIVE": 206
+  },
+  "primary_endpoint": "JAK2-selective vs everything not JAK2-selective",
+  "delta_pKi_definition": "log10(JAK1_Ki_nM / JAK2_Ki_nM)"
+}

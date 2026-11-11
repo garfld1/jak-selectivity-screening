@@ -1,0 +1,32 @@
+{
+  "jak1_path": "/Users/shreechatterjee/jak-selectivity-screening/results/plip_results_annotated_training_all/JAK1_docking_results.csv",
+  "jak2_path": "/Users/shreechatterjee/jak-selectivity-screening/results/plip_results_annotated_training_all/JAK2_docking_results.csv",
+  "n_ligands": 5779,
+  "n_features": 248,
+  "threshold_fold": 5.0,
+  "threshold_delta_pIC50": 0.6989700043360189,
+  "min_support": 50,
+  "min_jak2": 10,
+  "min_enrichment": 1.5,
+  "beam_width": 150,
+  "max_features": 5,
+  "holdout_size": 0.3,
+  "seed": 42,
+  "discovery_n": 4045,
+  "holdout_n": 1734,
+  "discovery_class_counts": {
+    "JAK1_SELECTIVE": 1961,
+    "NONSELECTIVE": 1902,
+    "JAK2_SELECTIVE": 182
+  },
+  "holdout_class_counts": {
+    "JAK1_SELECTIVE": 841,
+    "NONSELECTIVE": 815,
+    "JAK2_SELECTIVE": 78
+  },
+  "candidate_count": 11565,
+  "discovery_baseline_jak2_fraction": 0.0449938195302843,
+  "holdout_baseline_jak2_fraction": 0.04498269896193772,
+  "fdr_method": "Benjamini-Hochberg",
+  "fdr_alpha": 0.05
+}

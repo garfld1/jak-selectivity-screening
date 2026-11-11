@@ -5,7 +5,7 @@ Input:
     A CSV/TSV containing a "smiles" column.
 
 Model:
-    results/qsar/rf_final_model.joblib
+    models/rf_final_model.joblib
 
 Output:
     A CSV containing all valid compounds with predicted delta_pIC50,
@@ -32,7 +32,7 @@ from rdkit import Chem
 from rdkit.Chem import rdFingerprintGenerator
 
 
-MODEL_PATH = "results/qsar/rf_final_model.joblib"
+MODEL_PATH = "models/rf_final_model.joblib"
 
 
 def generate_morgan_fingerprints(

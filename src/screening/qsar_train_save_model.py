@@ -60,7 +60,7 @@ def main():
 
     parser.add_argument(
         "--output",
-        default="results/qsar/rf_final_model.joblib",
+        default="models/rf_final_model.joblib",
         help="Path for saved model",
     )
 
