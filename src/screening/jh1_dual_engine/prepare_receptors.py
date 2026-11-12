@@ -19,9 +19,16 @@ amino acids excluded) defines the box center. Vina gets a cubic box of
 --box-size edge length; rDock gets an RbtSphereSiteMapper cavity at the same
 center with RADIUS = half that edge, so the two engines search the same volume.
 
+Crystallographic waters whose oxygen lies inside that box are kept and given
+TIP3P hydrogens. They are written into the PLIP PDB, appended to the Vina
+PDBQT, and included in the rDock mol2. ColabFold models have no solvent of
+their own, so they inherit the crystal waters after superposition; a water
+that sits within 2 A of a model heavy atom is dropped. ``--drop-waters``
+rebuilds the previous dry receptors.
+
 Outputs under <outdir>/<source>/:
-    prepared_receptors/pdb/<target>.pdb        cleaned receptor, also PLIP input
-    prepared_receptors/pdbqt/<target>.pdbqt    Vina receptor (Meeko)
+    prepared_receptors/pdb/<target>.pdb        cleaned receptor plus site waters, also PLIP input
+    prepared_receptors/pdbqt/<target>.pdbqt    Vina receptor (Meeko protein, then site waters)
     rdock/<target>_protein.mol2                protonated receptor for rDock
     rdock/<target>.prm                         rDock receptor parameter file
     rdock/<target>.as                          rDock cavity from `rbcavity --was`
@@ -37,6 +44,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -62,13 +70,23 @@ CRYSTALS: Dict[str, Tuple[str, Path]] = {
 
 DEFAULT_BOX_SIZE = 20.0
 DEFAULT_EXHAUSTIVENESS = 16
+MIN_CAVITY_A3 = 100.0
+WATER_CLASH_A = 2.0
+WATER_NEIGHBOR_A = 4.0
+TIP3P_OH_A = 0.9572
+TIP3P_ANGLE_DEG = 104.52
+# Meeko types a water oxygen as OA and its hydrogens as HD. Vina scores those
+# types; the charges are recorded so the PDBQT matches the rest of the receptor.
+WATER_O_CHARGE = -0.412
+WATER_H_CHARGE = 0.206
 
 MK_PREPARE_RECEPTOR = "mk_prepare_receptor.py"
 
 # Residue handling during structure cleanup.
 KEEP_HET_RESIDUES = {"PTR"}                       # phosphotyrosine, keep
 KEEP_IONS = {"ZN", "MG", "MN", "FE", "CA", "K"}   # structural ions, keep
-REMOVE_EXPLICIT = {"HOH", "PEG", "PG4", "DTT"}    # crystallization junk, drop
+REMOVE_EXPLICIT = {"HOH", "PEG", "PG4", "DTT"}    # bulk solvent and crystallization junk, drop
+# Site waters are selected separately and appended after this cleanup.
 
 # Anything in these sets is not a candidate when auto-detecting the bound
 # organic ligand that defines the docking box.
@@ -356,6 +374,327 @@ def resolve_colabfold_model(target: str, pdb_id: str, crystal_path: Path, model_
 
 
 # ============================================================
+# SITE WATERS
+# ============================================================
+
+_ACCEPTOR_SIDE = {
+    "ASP": {"OD1", "OD2"},
+    "GLU": {"OE1", "OE2"},
+    "ASN": {"OD1"},
+    "GLN": {"OE1"},
+    "SER": {"OG"},
+    "THR": {"OG1"},
+    "TYR": {"OH"},
+    "HIS": {"ND1", "NE2"},
+}
+_DONOR_SIDE = {
+    "TRP": {"NE1"},
+    "ASN": {"ND2"},
+    "GLN": {"NE2"},
+    "LYS": {"NZ"},
+    "ARG": {"NE", "NH1", "NH2"},
+    "HIS": {"ND1", "NE2"},
+    "SER": {"OG"},
+    "THR": {"OG1"},
+    "TYR": {"OH"},
+    "CYS": {"SG"},
+}
+
+
+def _first_model_residues(structure):
+    for model in structure:
+        for chain in model:
+            for residue in chain:
+                yield chain, residue
+        break
+
+
+def _is_hydrogen(atom) -> bool:
+    element = (getattr(atom, "element", None) or "").strip().upper()
+    if element:
+        return element == "H"
+    return atom.get_name().strip().upper().startswith("H")
+
+
+def _water_oxygen(residue):
+    for atom in residue:
+        if _is_hydrogen(atom):
+            continue
+        element = (getattr(atom, "element", None) or "").strip().upper()
+        if element == "O" or atom.get_name().strip().upper() == "O":
+            return atom
+    return None
+
+
+def _pdb_atom_name(name: str) -> str:
+    """Four-column PDB atom name. One-letter elements sit in column 14."""
+    if len(name) > 4:
+        raise ValueError(f"atom name {name!r} is longer than 4 characters")
+    if len(name) == 4:
+        return name
+    return f" {name:<3s}"[:4]
+
+
+def select_box_waters(structure_path: Path, center: Sequence[float], box_size: float) -> List[Dict]:
+    """Crystal waters whose oxygen lies inside the cubic docking box.
+
+    The returned dicts carry the oxygen coordinate and B-factor. Hydrogens are
+    added later by ``orient_site_waters``.
+    """
+    half = float(box_size) / 2.0
+    origin = np.asarray(center, dtype=float)
+    structure = load_structure(structure_path, "waters")
+    waters: List[Dict] = []
+    seen = set()
+    for chain, residue in _first_model_residues(structure):
+        if residue.get_resname().strip().upper() not in WATERS:
+            continue
+        oxygen = _water_oxygen(residue)
+        if oxygen is None:
+            continue
+        chain_id = (chain.id or "A").strip()[:1] or "A"
+        resseq = int(residue.id[1])
+        key = (chain_id, resseq)
+        if key in seen:
+            continue
+        coord = np.array(oxygen.coord, dtype=float)
+        if np.any(np.abs(coord - origin) > half + 1e-6):
+            continue
+        seen.add(key)
+        waters.append(
+            {
+                "chain": chain_id,
+                "resseq": resseq,
+                "oxygen": coord,
+                "bfactor": float(oxygen.get_bfactor()),
+                "hydrogens": None,
+            }
+        )
+    waters.sort(key=lambda water: (water["chain"], water["resseq"]))
+    return waters
+
+
+def protein_heavy_coordinates(structure) -> np.ndarray:
+    """Heavy-atom coordinates of residues the cleaned receptor keeps."""
+    selector = CleanProteinSelect()
+    coords = []
+    for _, residue in _first_model_residues(structure):
+        if not selector.accept_residue(residue):
+            continue
+        for atom in residue:
+            if _is_hydrogen(atom):
+                continue
+            coords.append(np.array(atom.coord, dtype=float))
+    if not coords:
+        return np.zeros((0, 3), dtype=float)
+    return np.vstack(coords)
+
+
+def drop_clashing_waters(
+    waters: Sequence[Dict],
+    protein_coords: np.ndarray,
+    cutoff: float = WATER_CLASH_A,
+) -> Tuple[List[Dict], List[Dict]]:
+    """Drop waters whose oxygen is within ``cutoff`` of a protein heavy atom."""
+    if len(protein_coords) == 0:
+        return list(waters), []
+    kept, dropped = [], []
+    for water in waters:
+        distance = float(np.linalg.norm(protein_coords - water["oxygen"], axis=1).min())
+        if distance <= cutoff:
+            dropped.append(water)
+        else:
+            kept.append(water)
+    return kept, dropped
+
+
+def _polar_sites(structure) -> Tuple[np.ndarray, np.ndarray]:
+    """Protein acceptor and donor heavy atoms, used to orient water hydrogens."""
+    selector = CleanProteinSelect()
+    acceptors, donors = [], []
+    for _, residue in _first_model_residues(structure):
+        if not selector.accept_residue(residue):
+            continue
+        resname = residue.get_resname().strip().upper()
+        for atom in residue:
+            if _is_hydrogen(atom):
+                continue
+            name = atom.get_name().strip().upper()
+            coord = np.array(atom.coord, dtype=float)
+            if name in {"O", "OXT"} or name in _ACCEPTOR_SIDE.get(resname, ()):
+                acceptors.append(coord)
+            if (name == "N" and resname != "PRO") or name in _DONOR_SIDE.get(resname, ()):
+                donors.append(coord)
+    acceptor_xyz = np.vstack(acceptors) if acceptors else np.zeros((0, 3), dtype=float)
+    donor_xyz = np.vstack(donors) if donors else np.zeros((0, 3), dtype=float)
+    return acceptor_xyz, donor_xyz
+
+
+def _nearby(points: np.ndarray, origin: np.ndarray, cutoff: float) -> np.ndarray:
+    if len(points) == 0:
+        return points
+    distance = np.linalg.norm(points - origin, axis=1)
+    return points[distance <= cutoff]
+
+
+def _tip3p_hydrogens(origin: np.ndarray, direction: np.ndarray, twist: float) -> Tuple[np.ndarray, np.ndarray]:
+    """Two TIP3P hydrogens. ``direction`` is the O-H1 unit vector, ``twist`` spins H2."""
+    unit = direction / np.linalg.norm(direction)
+    helper = np.array([1.0, 0.0, 0.0]) if abs(unit[0]) < 0.9 else np.array([0.0, 1.0, 0.0])
+    perpendicular = np.cross(unit, helper)
+    perpendicular /= np.linalg.norm(perpendicular)
+    theta = math.radians(TIP3P_ANGLE_DEG)
+    base = math.cos(theta) * unit + math.sin(theta) * perpendicular
+    cosine, sine = math.cos(twist), math.sin(twist)
+    spun = base * cosine + np.cross(unit, base) * sine + unit * np.dot(unit, base) * (1.0 - cosine)
+    return origin + TIP3P_OH_A * unit, origin + TIP3P_OH_A * spun
+
+
+def _orientation_score(
+    origin: np.ndarray,
+    hydrogen_a: np.ndarray,
+    hydrogen_b: np.ndarray,
+    acceptors: np.ndarray,
+    donors: np.ndarray,
+) -> float:
+    score = 0.0
+    if len(acceptors):
+        for hydrogen in (hydrogen_a, hydrogen_b):
+            distance = float(np.linalg.norm(acceptors - hydrogen, axis=1).min())
+            score += math.exp(-0.5 * ((distance - 1.8) / 0.35) ** 2)
+    if len(donors):
+        bisector = (hydrogen_a - origin) + (hydrogen_b - origin)
+        norm = float(np.linalg.norm(bisector))
+        if norm > 1e-8:
+            lone_pair = -bisector / norm
+            vectors = donors - origin
+            distance = np.linalg.norm(vectors, axis=1)
+            nearest = int(distance.argmin())
+            direction = vectors[nearest] / distance[nearest]
+            alignment = max(0.0, float(np.dot(direction, lone_pair)))
+            score += alignment * math.exp(-0.5 * ((float(distance[nearest]) - 2.8) / 0.4) ** 2)
+    return score
+
+
+def orient_site_waters(waters: Sequence[Dict], structure) -> None:
+    """Place TIP3P hydrogens so they point at nearby protein acceptors.
+
+    The search grid is fixed, and ties keep the first sample, so the same
+    water and protein always produce the same hydrogens.
+    """
+    acceptors, donors = _polar_sites(structure)
+    polar_steps = np.linspace(0.0, math.pi, 12, endpoint=False)
+    azimuth_steps = np.linspace(0.0, 2.0 * math.pi, 18, endpoint=False)
+    twist_steps = np.linspace(0.0, 2.0 * math.pi, 12, endpoint=False)
+    for water in waters:
+        origin = water["oxygen"]
+        local_acceptors = _nearby(acceptors, origin, WATER_NEIGHBOR_A)
+        local_donors = _nearby(donors, origin, WATER_NEIGHBOR_A)
+        best_score = -1.0
+        best = None
+        for polar in polar_steps:
+            sin_polar = math.sin(polar)
+            for azimuth in azimuth_steps:
+                direction = np.array(
+                    [sin_polar * math.cos(azimuth), sin_polar * math.sin(azimuth), math.cos(polar)],
+                    dtype=float,
+                )
+                for twist in twist_steps:
+                    hydrogens = _tip3p_hydrogens(origin, direction, float(twist))
+                    score = _orientation_score(origin, hydrogens[0], hydrogens[1], local_acceptors, local_donors)
+                    if best is None or score > best_score + 1e-12:
+                        best_score = score
+                        best = hydrogens
+        water["hydrogens"] = best
+
+
+def water_json(water: Dict) -> Dict:
+    return {
+        "chain": water["chain"],
+        "resseq": int(water["resseq"]),
+        "bfactor": round(float(water["bfactor"]), 2),
+        "xyz": [round(float(value), 3) for value in water["oxygen"]],
+    }
+
+
+def _format_pdb_hetatm(serial, name, chain, resseq, xyz, bfactor, element) -> str:
+    x, y, z = (float(value) for value in xyz)
+    return (
+        f"HETATM{serial:5d} {_pdb_atom_name(name)} HOH "
+        f"{chain:1s}{resseq:4d}    "
+        f"{x:8.3f}{y:8.3f}{z:8.3f}{1.00:6.2f}{float(bfactor):6.2f}"
+        f"          {element:>2s}"
+    )
+
+
+def _format_pdbqt_hetatm(serial, name, chain, resseq, xyz, charge, ad_type) -> str:
+    x, y, z = (float(value) for value in xyz)
+    return (
+        f"HETATM{serial:5d} {_pdb_atom_name(name)} HOH "
+        f"{chain:1s}{resseq:4d}    "
+        f"{x:8.3f}{y:8.3f}{z:8.3f}  1.00  0.00    {charge:+6.3f} {ad_type:<2s}"
+    )
+
+
+def _atom_lines(waters: Sequence[Dict], start_serial: int, pdbqt: bool) -> List[str]:
+    lines: List[str] = []
+    serial = start_serial
+    for water in waters:
+        if water.get("hydrogens") is None:
+            raise RuntimeError(f"water {water['chain']}{water['resseq']} has no hydrogens")
+        chain = water["chain"]
+        resseq = int(water["resseq"])
+        hydrogen_a, hydrogen_b = water["hydrogens"]
+        atoms = (("O", water["oxygen"]), ("H1", hydrogen_a), ("H2", hydrogen_b))
+        for name, xyz in atoms:
+            if pdbqt:
+                charge = WATER_O_CHARGE if name == "O" else WATER_H_CHARGE
+                ad_type = "OA" if name == "O" else "HD"
+                lines.append(_format_pdbqt_hetatm(serial, name, chain, resseq, xyz, charge, ad_type))
+            else:
+                element = "O" if name == "O" else "H"
+                lines.append(
+                    _format_pdb_hetatm(serial, name, chain, resseq, xyz, water["bfactor"], element)
+                )
+            serial += 1
+    return lines
+
+
+def last_atom_serial(path: Path) -> int:
+    last = 0
+    for line in path.read_text().splitlines():
+        if not line.startswith(("ATOM", "HETATM")):
+            continue
+        try:
+            last = max(last, int(line[6:11]))
+        except ValueError:
+            continue
+    return last
+
+
+def insert_before_end(path: Path, lines: Sequence[str]) -> None:
+    if not lines:
+        return
+    rows = path.read_text().splitlines()
+    end_at = next((i for i, row in enumerate(rows) if row.startswith("END")), len(rows))
+    rows[end_at:end_at] = list(lines)
+    path.write_text("\n".join(rows) + "\n")
+
+
+def append_site_waters(path: Path, waters: Sequence[Dict], pdbqt: bool) -> None:
+    insert_before_end(path, _atom_lines(waters, last_atom_serial(path) + 1, pdbqt))
+
+
+def total_cavity_volume(stdout: str) -> float:
+    for line in stdout.splitlines():
+        if "Total volume" not in line:
+            continue
+        token = line.split("Total volume", 1)[1].strip().split()[0]
+        return float(token)
+    raise RuntimeError(f"rbcavity did not report a cavity volume:\n{stdout[-1500:]}")
+
+
+# ============================================================
 # VINA RECEPTOR (MEEKO)
 # ============================================================
 
@@ -556,6 +895,13 @@ def prepare_rdock_site(
     if proc.returncode != 0 or not as_path.exists():
         raise RuntimeError(f"rbcavity failed for {target}:\n{(proc.stdout + proc.stderr)[-1500:]}")
 
+    volume = total_cavity_volume(proc.stdout)
+    if volume < MIN_CAVITY_A3:
+        raise RuntimeError(
+            f"rbcavity volume for {target} is {volume:.1f} A^3, below {MIN_CAVITY_A3:.0f} A^3. "
+            "Site waters may have filled the cavity."
+        )
+
     volume_lines = [
         line for line in proc.stdout.splitlines()
         if "Cavity #" in line or "Total volume" in line
@@ -631,6 +977,24 @@ def prepare_target(
     write_structure_pdb(structure, cleaned_pdb, CleanProteinSelect())
     print(f"[>] Converting {target} cleaned PDB -> PDBQT (Meeko) ...")
     prepare_receptor_pdbqt_with_meeko(cleaned_pdb, pdbqt_path)
+
+    if args.drop_waters:
+        waters, dropped = [], []
+        water_source = "none"
+    else:
+        waters = select_box_waters(crystal_path, site["centroid"], args.box_size)
+        dropped = []
+        if args.source == "colabfold":
+            waters, dropped = drop_clashing_waters(waters, protein_heavy_coordinates(structure))
+        orient_site_waters(waters, structure)
+        append_site_waters(cleaned_pdb, waters, pdbqt=False)
+        append_site_waters(pdbqt_path, waters, pdbqt=True)
+        water_source = "crystal_box"
+        print(f"    Site waters kept: {len(waters)}")
+        if dropped:
+            dropped_ids = ", ".join(f"{water['chain']}{water['resseq']}" for water in dropped)
+            print(f"    Dropped {len(dropped)} waters within {WATER_CLASH_A:.1f} A of the model: {dropped_ids}")
+
     ok, message = validate_receptor_pdbqt(pdbqt_path)
     print(f"[{'OK' if ok else 'FAIL'}] {target}: {message}")
     if not ok:
@@ -645,6 +1009,10 @@ def prepare_target(
         "detected_ligand_resname": site["resname"],
         "detected_ligand_chain": site["chain"],
         "detected_ligand_natoms": site["n_atoms"],
+        "water_source": water_source,
+        "n_waters": len(waters),
+        "waters": [water_json(water) for water in waters],
+        "waters_dropped_clash": [water_json(water) for water in dropped],
         **provenance,
     }
 
@@ -717,6 +1085,11 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         "JAK positions. PLIP labels then will not match the crystal receptors.",
     )
     parser.add_argument("--skip-rdock", action="store_true", help="Prepare Vina receptors only.")
+    parser.add_argument(
+        "--drop-waters",
+        action="store_true",
+        help="Leave the receptor dry. By default, crystallographic waters inside the docking box are kept.",
+    )
     return parser.parse_args(argv)
 
 

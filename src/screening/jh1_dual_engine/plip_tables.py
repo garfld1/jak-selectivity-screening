@@ -31,7 +31,10 @@ poses contributes 5 to the top-5 table and 7 to the top-10 table, and its
 ``n_poses`` column says which.
 
 plus ``docking_scores.csv``, ``docking_coverage_summary.csv`` and
-``failures.csv`` across all targets and engines.
+``failures.csv`` across all targets and engines. Interaction tables also
+carry ``mmgbsa_score`` for the pose that set the order. ``docking_scores.csv``
+adds ``mmgbsa_score`` and ``mmgbsa_pose_scores`` beside the engine scores.
+Those MM/GBSA cells are empty when a run was started with ``--skip-mmgbsa``.
 
 ``dual_engine_docking.py`` calls ``write_all_tables`` at the end of a run. This
 module is also a CLI, so tables can be rebuilt from an existing checkpoint
@@ -144,7 +147,7 @@ def build_table(
     records = window_records(records, 1 if scope == "top1" else window)
     records = sorted(records, key=lambda rec: rec.get("input_order", 10**18))
     columns = collect_feature_columns(records, resolution)
-    id_cols = ["ligand_id", "smiles", *carry_cols, score_column(engine)]
+    id_cols = ["ligand_id", "smiles", *carry_cols, score_column(engine), "mmgbsa_score"]
     if scope == "frequency":
         id_cols.append("n_poses")
 
@@ -159,6 +162,7 @@ def build_table(
             "smiles": record.get("smiles"),
             **{col: carry.get(col) for col in carry_cols},
             score_column(engine): record.get("top_score"),
+            "mmgbsa_score": record.get("mmgbsa_score"),
         }
         if scope == "top1":
             present = pose_labels(poses[0], resolution)
@@ -191,13 +195,17 @@ def build_score_table(records: Sequence[dict], carry_cols: Sequence[str] = ()) -
                 "target": record.get("target"),
                 "engine": record.get("engine"),
                 "top_score": record.get("top_score"),
+                "mmgbsa_score": record.get("mmgbsa_score"),
                 "n_poses": len(scores),
                 "pose_scores": ";".join(f"{score:.3f}" for score in scores),
+                "mmgbsa_pose_scores": ";".join(
+                    f"{score:.3f}" for score in (record.get("mmgbsa_pose_scores") or [])
+                ),
             }
         )
     columns = [
         "ligand_id", "smiles", *carry_cols, "target", "engine",
-        "top_score", "n_poses", "pose_scores",
+        "top_score", "mmgbsa_score", "n_poses", "pose_scores", "mmgbsa_pose_scores",
     ]
     return pd.DataFrame(rows, columns=columns)
 
@@ -240,7 +248,7 @@ def write_all_tables(
                 for scope, window, label in specs:
                     table = build_table(records, engine, resolution, scope, carry_cols, window)
                     table.to_csv(outdir / f"{engine}_{target.lower()}_{label}.csv", index=False)
-                    n_id_cols = len(carry_cols) + (3 if scope == "top1" else 4)
+                    n_id_cols = len(carry_cols) + (4 if scope == "top1" else 5)
                     n_feature_cols[(resolution, label)] = max(table.shape[1] - n_id_cols, 0)
 
             pose_counts = [len(record.get("pose_features") or []) for record in records]

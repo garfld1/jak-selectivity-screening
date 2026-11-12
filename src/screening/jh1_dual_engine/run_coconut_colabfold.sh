@@ -7,7 +7,10 @@
 #   src/screening/jh1_dual_engine/run_coconut_colabfold.sh --limit 5    smoke test, separate outdir
 #   src/screening/jh1_dual_engine/run_coconut_colabfold.sh --resume     continue an interrupted run
 #
-# Extra arguments are forwarded to dual_engine_docking.py.
+# Extra arguments are forwarded to dual_engine_docking.py, including
+# --skip-mmgbsa. Receptors now keep crystallographic site waters and poses
+# are reordered by MM/GBSA. Set FORCE_PREP=1 once so an existing dry
+# receptor directory is rebuilt before a production run.
 #
 # Environment overrides:
 #   PY CONDA_ENV INPUT OUTDIR RECEPTOR_DIR WORKERS CPU_PER_JOB

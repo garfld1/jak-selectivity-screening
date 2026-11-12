@@ -16,7 +16,7 @@ with `pIC50 = −log10(IC50 in M)`. A positive value means the compound is more 
 2. **QSAR.** Featurize each SMILES as a Morgan fingerprint (radius 2, 2048 bits) and regress `delta_pIC50`. Cross-validation uses either a random split or Murcko-scaffold groups. A random forest trained on the full set is the screening model.
 3. **Library screen.** Score a SMILES library, such as COCONUT or an FDA set, and keep a top fraction or a fixed top N.
 4. **Receptors.** Prepare JAK1 (PDB [4EI4](https://www.rcsb.org/structure/4EI4)) and JAK2 (PDB [4JI9](https://www.rcsb.org/structure/4JI9)) from the crystal structures, or from LocalColabFold JH1 models superposed onto those crystals. The docking box is centered on the co-crystal inhibitor. JH1 spans used for the models are JAK1 875–1153 (UniProt P23458) and JAK2 849–1124 (UniProt O60674).
-5. **Docking and interactions.** Dock each shortlisted compound into both receptors with Vina and rDock, run PLIP on the retained poses, and write score tables plus per-residue and per-interaction-type fingerprints.
+5. **Docking and interactions.** Dock each shortlisted compound into both receptors with Vina and rDock. The receptors keep the crystallographic waters that sit inside the docking box, including on the ColabFold models. Retained poses are rescored with MM/GBSA and reordered by that energy. PLIP then records interactions, including water bridges, and the pipeline writes score tables plus per-residue and per-interaction-type fingerprints.
 
 Docking commands, output files, and resume behavior are documented in [`src/screening/jh1_dual_engine/README.md`](src/screening/jh1_dual_engine/README.md).
 
@@ -32,6 +32,7 @@ pip install -r requirements.txt
 
 - **Biopython**, used by the ColabFold and receptor-prep scripts.
 - **Open Babel**, AutoDock Vina, and rDock. The docking scripts look for Vina at `~/bin/vina` and for rDock under `ensemble_pipeline_new/tools/src/rDock`. Override those paths with the flags in the docking README.
+- **OpenMM, OpenFF Toolkit, openmmforcefields, and OpenFF NAGL**, used to rescore docked poses with MM/GBSA. They are listed in `requirements.txt`.
 - **LocalColabFold**, only if you regenerate the JH1 models rather than using the structures already in the repo.
 
 Run commands from the repository root. The COCONUT docking wrapper expects a conda environment named `jak_docking` at `~/miniforge3/envs/jak_docking`; set `PY` or `CONDA_ENV` to point elsewhere.

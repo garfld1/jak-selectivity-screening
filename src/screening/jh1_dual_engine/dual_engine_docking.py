@@ -15,8 +15,11 @@ rDock
     ``--rdock-runs`` docking runs (default 50), then a heavy-atom diversity
     filter at ``--rdock-cluster-rmsd`` keeping at most ``--num-poses`` poses.
 
-Lower score is better for both engines, so the top pose is the best-scoring
-one in both cases. ``--num-poses`` sets how many poses are retained and so
+Each retained pose is rescored with MM/GBSA. More negative energy ranks
+first, which is the same direction as the engine scores. The engine score of
+that pose is what the tables still call ``vina_score`` or ``rdock_score``;
+``mmgbsa_score`` is the value that set the order. ``--skip-mmgbsa`` restores
+engine-score ordering. ``--num-poses`` sets how many poses are retained and so
 caps the interaction-frequency windows; ``--frequency-windows`` then chooses
 which windows get a table, by default the top 5 and the top 10.
 
@@ -54,9 +57,12 @@ import tqdm
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import plip_tables
+from mmgbsa import METHOD_ID
 from docking_core import (
+    apply_pdbqt_heavy_coords,
     dock_with_vina,
     generate_3d_conformer,
+    heavy_index_in_pdbqt_order,
     mol_to_sd,
     pdbqt_block_to_ligand_pdb,
     plip_features,
@@ -64,6 +70,7 @@ from docking_core import (
     rdkit_mol_to_pdbqt_text,
     run_rbdock,
     sd_record_to_ligand_pdb,
+    sd_record_to_mol,
     select_diverse,
     split_pdbqt_models,
     split_sd,
@@ -78,7 +85,7 @@ DEFAULT_VINA_BIN = Path("~/bin/vina").expanduser()
 DEFAULT_RDOCK_ROOT = REPO_ROOT / "ensemble_pipeline_new" / "tools" / "src" / "rDock"
 
 CHECKPOINT_NAME = "docking_checkpoint.jsonl"
-CONFIG_VERSION = 1
+CONFIG_VERSION = 2
 
 TARGETS = ("JAK1", "JAK2")
 ENGINES = ("vina", "rdock")
@@ -119,6 +126,7 @@ class DockJob:
     rdock_cluster_rmsd: float
     rdock_timeout: int
     config_hash: str
+    skip_mmgbsa: bool = False
     pose_dir: Optional[str] = None
 
 
@@ -263,7 +271,10 @@ def resolve_receptors(
 
 def preflight(args: argparse.Namespace, receptors: Dict[str, dict]) -> None:
     missing = []
-    for module in ("meeko", "plip", "rdkit"):
+    required = ["meeko", "plip", "rdkit"]
+    if not args.skip_mmgbsa:
+        required.extend(["openmm", "openff.toolkit", "openmmforcefields", "openff.nagl"])
+    for module in required:
         try:
             __import__(module)
         except ImportError:
@@ -295,11 +306,42 @@ def _write_pose_archive(job: DockJob, blocks: Sequence[str], suffix: str) -> Opt
     return str(path)
 
 
-def dock_vina(job: DockJob, mol, workdir: Path) -> Tuple[List[Tuple[float, List[str]]], Optional[str]]:
+def _order_scored_rows(job: DockJob, rows: Sequence[tuple]) -> List[tuple]:
+    """Sort ``(engine_score, features, payload, mol)`` by MM/GBSA, then drop non-finite energies.
+
+    With ``--skip-mmgbsa`` the engine score is the sort key and the MM/GBSA
+    slot stays None. Otherwise a pose whose energy is not finite is removed.
+    """
+    if not rows:
+        return []
+    if job.skip_mmgbsa:
+        ordered = [(score, None, features, payload) for score, features, payload, _mol in rows]
+        ordered.sort(key=lambda item: item[0])
+        return ordered
+
+    from mmgbsa import mmgbsa_pose_energies
+
+    energies = mmgbsa_pose_energies(job.receptor_pdb, [row[3] for row in rows])
+    if len(energies) != len(rows):
+        raise RuntimeError("MM/GBSA returned a different number of energies than poses")
+    kept = []
+    for (score, features, payload, _mol), energy in zip(rows, energies):
+        if not math.isfinite(energy):
+            continue
+        kept.append((score, float(energy), features, payload))
+    if not kept:
+        raise RuntimeError("MM/GBSA energies were non-finite for every retained pose")
+    kept.sort(key=lambda item: item[1])
+    return kept
+
+
+def dock_vina(job: DockJob, mol, workdir: Path) -> Tuple[List[Tuple[float, Optional[float], List[str]]], Optional[str]]:
     lig_path = workdir / "lig.pdbqt"
     out_path = workdir / "docked.pdbqt"
     log_path = workdir / "vina.log"
-    lig_path.write_text(rdkit_mol_to_pdbqt_text(mol))
+    pdbqt_text = rdkit_mol_to_pdbqt_text(mol)
+    lig_path.write_text(pdbqt_text)
+    heavy_index = heavy_index_in_pdbqt_order(mol, pdbqt_text)
 
     dock_with_vina(
         vina_bin=job.vina_bin,
@@ -318,29 +360,27 @@ def dock_vina(job: DockJob, mol, workdir: Path) -> Tuple[List[Tuple[float, List[
     )
 
     protein = protein_only_pdb(Path(job.receptor_pdb).read_text())
-    poses: List[Tuple[float, List[str]]] = []
-    kept_blocks: List[str] = []
+    rows = []
     last_error: Optional[Exception] = None
     for i, block in enumerate(split_pdbqt_models(out_path.read_text())):
         try:
             score = vina_score_from_block(block)
             features = plip_features(protein, pdbqt_block_to_ligand_pdb(block), workdir, f"vina_{i}")
+            pose_mol = apply_pdbqt_heavy_coords(mol, block, heavy_index)
         except Exception as exc:
             last_error = exc
             continue
-        poses.append((score, features))
-        kept_blocks.append(block)
+        rows.append((score, features, block, pose_mol))
 
-    if not poses and last_error is not None:
+    if not rows and last_error is not None:
         raise RuntimeError(f"Vina poses failed PLIP: {last_error}") from last_error
 
-    order = sorted(range(len(poses)), key=lambda i: poses[i][0])
-    poses = [poses[i] for i in order][: job.num_poses]
-    archive = _write_pose_archive(job, [kept_blocks[i] for i in order][: job.num_poses], ".pdbqt")
-    return poses, archive
+    ordered = _order_scored_rows(job, rows)[: job.num_poses]
+    archive = _write_pose_archive(job, [payload for _score, _mm, _features, payload in ordered], ".pdbqt")
+    return [(score, mmgbsa, features) for score, mmgbsa, features, _payload in ordered], archive
 
 
-def dock_rdock(job: DockJob, mol, workdir: Path) -> Tuple[List[Tuple[float, List[str]]], Optional[str]]:
+def dock_rdock(job: DockJob, mol, workdir: Path) -> Tuple[List[Tuple[float, Optional[float], List[str]]], Optional[str]]:
     lig_path = workdir / "lig.sd"
     lig_path.write_text(mol_to_sd(mol))
 
@@ -358,23 +398,24 @@ def dock_rdock(job: DockJob, mol, workdir: Path) -> Tuple[List[Tuple[float, List
         raise RuntimeError("rbdock produced no poses")
 
     protein = protein_only_pdb(Path(job.receptor_pdb).read_text())
-    poses: List[Tuple[float, List[str]]] = []
-    kept_records: List[str] = []
+    rows = []
     last_error: Optional[Exception] = None
     for i, (score, record) in enumerate(kept):
         try:
             features = plip_features(protein, sd_record_to_ligand_pdb(record), workdir, f"rdock_{i}")
+            pose_mol = sd_record_to_mol(record)
         except Exception as exc:
             last_error = exc
             continue
-        poses.append((score, features))
-        kept_records.append(record if record.endswith("$$$$\n") else record + "$$$$\n")
+        payload = record if record.endswith("$$$$\n") else record + "$$$$\n"
+        rows.append((score, features, payload, pose_mol))
 
-    if not poses and last_error is not None:
+    if not rows and last_error is not None:
         raise RuntimeError(f"rDock poses failed PLIP: {last_error}") from last_error
 
-    archive = _write_pose_archive(job, kept_records, ".sd")
-    return poses, archive
+    ordered = _order_scored_rows(job, rows)
+    archive = _write_pose_archive(job, [payload for _score, _mm, _features, payload in ordered], ".sd")
+    return [(score, mmgbsa, features) for score, mmgbsa, features, _payload in ordered], archive
 
 
 def run_job(job: DockJob) -> dict:
@@ -400,11 +441,14 @@ def run_job(job: DockJob) -> dict:
                 raise RuntimeError(f"unknown engine {job.engine}")
         if not poses:
             raise RuntimeError(f"{job.engine} produced no PLIP-valid poses")
+        mmgbsa_scores = [score for _engine, score, _features in poses]
         record.update(
             {
                 "top_score": poses[0][0],
-                "pose_scores": [score for score, _ in poses],
-                "pose_features": [features for _, features in poses],
+                "pose_scores": [score for score, _mmgbsa, _features in poses],
+                "mmgbsa_score": mmgbsa_scores[0],
+                "mmgbsa_pose_scores": [score for score in mmgbsa_scores if score is not None],
+                "pose_features": [features for _score, _mmgbsa, features in poses],
                 "pose_archive": archive,
                 "error": None,
             }
@@ -414,6 +458,8 @@ def run_job(job: DockJob) -> dict:
             {
                 "top_score": None,
                 "pose_scores": [],
+                "mmgbsa_score": None,
+                "mmgbsa_pose_scores": [],
                 "pose_features": [],
                 "pose_archive": None,
                 "error": str(exc),
@@ -455,7 +501,22 @@ def input_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _water_identity(receptors: Dict[str, dict]) -> Dict[str, list]:
+    identity = {}
+    for target, rec in receptors.items():
+        identity[target] = [
+            {
+                "chain": water.get("chain"),
+                "resseq": water.get("resseq"),
+                "xyz": water.get("xyz"),
+            }
+            for water in rec.get("waters") or []
+        ]
+    return identity
+
+
 def config_hash(args: argparse.Namespace, receptors: Dict[str, dict]) -> str:
+    mmgbsa = None if args.skip_mmgbsa else {"method": METHOD_ID, "hydrogen_minimize": True}
     payload = {
         "version": CONFIG_VERSION,
         "input": str(Path(args.input).expanduser().resolve()),
@@ -472,6 +533,8 @@ def config_hash(args: argparse.Namespace, receptors: Dict[str, dict]) -> str:
             target: {"center": list(rec["center"]), "size": list(rec["size"])}
             for target, rec in receptors.items()
         },
+        "waters": _water_identity(receptors),
+        "mmgbsa": mmgbsa,
     }
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()[:16]
 
@@ -527,6 +590,7 @@ def build_jobs(
                         rdock_cluster_rmsd=args.rdock_cluster_rmsd,
                         rdock_timeout=args.rdock_timeout,
                         config_hash=cfg_hash,
+                        skip_mmgbsa=args.skip_mmgbsa,
                         pose_dir=str(pose_dir) if pose_dir is not None else None,
                     )
                 )
@@ -588,6 +652,11 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser.add_argument("--cpu-per-job", type=int, default=1, help="Vina --cpu inside each worker.")
     parser.add_argument("--resume", action="store_true", help="Reuse matching-config successes in the checkpoint.")
     parser.add_argument("--save-poses", action="store_true", help="Write retained poses to <outdir>/poses/.")
+    parser.add_argument(
+        "--skip-mmgbsa",
+        action="store_true",
+        help="Rank retained poses by the docking-engine score instead of MM/GBSA.",
+    )
     parser.add_argument("--preflight-only", action="store_true", help="Validate inputs and binaries, then exit.")
     return parser.parse_args(argv)
 
@@ -704,6 +773,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "rdock_cluster_rmsd": args.rdock_cluster_rmsd,
         "rdock_protocol": RDOCK_PROTOCOL,
         "saved_poses": bool(args.save_poses),
+        "mmgbsa": None if args.skip_mmgbsa else METHOD_ID,
+        "waters": _water_identity(receptors),
         "n_successful_jobs": len(successes),
         "n_failed_jobs": len(failures),
         "coverage": coverage,

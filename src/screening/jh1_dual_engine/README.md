@@ -31,19 +31,27 @@ gets a cubic box of `--box-size` (default 20 Å); rDock gets an
 `RbtSphereSiteMapper` cavity at the same center with `RADIUS` = half that edge,
 so both engines search the same volume.
 
+Crystallographic waters whose oxygen sits inside that box are kept. At the
+default 20 Å box that is 9 waters for 4EI4 and 7 for 4JI9, all of them in
+contact with the protein.
+Each water gets TIP3P hydrogens oriented toward nearby protein donors and
+acceptors. ColabFold models have no solvent, so they inherit these crystal
+waters after superposition; a water within 2 Å of a model heavy atom is
+dropped. `--drop-waters` rebuilds the dry receptors.
+
 Output lands in `docking/receptors/<source>/`:
 
 ```
-prepared_receptors/pdb/<target>.pdb       cleaned receptor, also the PLIP input
-prepared_receptors/pdbqt/<target>.pdbqt   Vina receptor (Meeko)
-rdock/<target>_protein.mol2               protonated receptor for rDock
+prepared_receptors/pdb/<target>.pdb       cleaned receptor plus site waters, also the PLIP input
+prepared_receptors/pdbqt/<target>.pdbqt   Vina receptor (Meeko), with site waters appended
+rdock/<target>_protein.mol2               protonated receptor for rDock, including site waters
 rdock/<target>.prm                        rDock receptor parameter file
 rdock/<target>.as                         cavity from `rbcavity --was`
 rdock/prep_manifest.json                  rbcavity cavity volumes and warnings
-receptors.json                            paths + box, consumed by step 2
+receptors.json                            paths, box, and the kept waters, consumed by step 2
 ```
 
-Useful flags: `--box-size`, `--targets`, `--skip-rdock`, `--ptr-mode`
+Useful flags: `--box-size`, `--targets`, `--skip-rdock`, `--drop-waters`, `--ptr-mode`
 (phosphotyrosine becomes TYR for rDock by default, since rDock has no PTR
 type), `--rdock-root`, `--outdir`.
 
@@ -64,9 +72,19 @@ One job per (ligand, target, engine). Vina exhaustiveness is customizable via
 `--exhaustiveness` and defaults to the value stored in `receptors.json`, which
 `prepare_receptors.py` writes as 16. rDock runs `--rdock-runs` times (default
 50) and then a heavy-atom diversity filter at `--rdock-cluster-rmsd` keeps at
-most `--num-poses` poses. Lower score is better for both engines, so the top
-pose is the best-scoring one in both cases. PLIP runs independently on every
-retained pose.
+most `--num-poses` poses. That selection is unchanged. Each retained pose is
+then rescored with a single-point MM/GBSA energy (Amber ff14SB, TIP3P site
+waters, OpenFF Sage with NAGL charges, GBn2 implicit solvent). Hydrogens are
+relaxed and heavy atoms stay at the docked coordinates. More negative energy
+ranks first. PLIP still runs on the docked coordinates, with the site waters
+left in the complex, so a bridge is recorded on the protein residue it
+connects, for example `GLU966:water_bridge`. `--skip-mmgbsa` ranks by the
+engine score instead.
+
+Existing receptor files do not contain these waters. Re-run
+`prepare_receptors.py` (or `FORCE_PREP=1` on the COCONUT wrapper) before a
+production docking run. The checkpoint hash includes the water list and the
+MM/GBSA settings, so a dry run is not resumed into a wet one.
 
 `--num-poses` (default 10) caps how many poses the frequency tables can
 aggregate, and `--frequency-windows` (default `5 10`) picks which windows get
@@ -124,11 +142,14 @@ A window only narrows what a ligand already has. A ligand with 7 retained
 poses contributes 5 poses to the top-5 table and 7 to the top-10 table, and
 its `n_poses` column says which. Columns are drawn from the windowed poses,
 so a top-5 table never carries an all-zero column for an interaction that
-only pose 7 made.
+only pose 7 made. Pose 1 is the best MM/GBSA pose. `vina_score` and
+`rdock_score` remain the engine score of that pose, and `mmgbsa_score` is
+the energy that put it first.
 
-Plus, across all targets and engines: `docking_scores.csv` (top score and every
-retained pose score), `docking_coverage_summary.csv` (ligand counts, column
-counts, pose-count statistics), `failures.csv` and `run_manifest.json`.
+Plus, across all targets and engines: `docking_scores.csv` (engine score and
+MM/GBSA score for the top pose, and both scores for every retained pose),
+`docking_coverage_summary.csv` (ligand counts, column counts, pose-count
+statistics), `failures.csv` and `run_manifest.json`.
 
 Columns listed in `--carry-cols` are copied into every table, which is how an
 endpoint such as `delta_pIC50` rides along into the interaction matrices.
@@ -136,6 +157,7 @@ endpoint such as `delta_pIC50` rides along into the interaction matrices.
 ## Requirements
 
 `biopython`, `numpy`, `pandas`, `rdkit`, `meeko`, `plip`, `tqdm`, `openbabel`
-(for the rDock mol2 conversion), an AutoDock Vina binary (default `~/bin/vina`)
-and an rDock installation (default
-`ensemble_pipeline_new/tools/src/rDock`).
+(for the rDock mol2 conversion), `openmm`, `openff-toolkit`,
+`openmmforcefields`, `openff-nagl`, and `openff-nagl-models` (for MM/GBSA),
+an AutoDock Vina binary (default `~/bin/vina`) and an rDock installation
+(default `ensemble_pipeline_new/tools/src/rDock`).

@@ -29,9 +29,9 @@ LIGAND_RESNAME = "LIG"
 LIGAND_CHAIN_ID = "Z"
 LIGAND_RESSEQ = 1
 
-# Receptor residues PLIP should not see: modified residues it mis-types and
-# waters that would create spurious bridges.
-EXCLUDE_RESNAMES = {"PTR", "SEP", "TPO", "HOH", "MSE"}
+# Modified residues PLIP mis-types. Site waters stay in the complex so a
+# water bridge is recorded on the protein residue it connects.
+EXCLUDE_RESNAMES = {"PTR", "SEP", "TPO", "MSE"}
 
 # AutoDock atom type -> element. NA is a nitrogen AutoDock type, not sodium.
 AD_TYPE_TO_ELEMENT = {
@@ -207,6 +207,78 @@ def _infer_element(atom_name: str, line: str) -> str:
     return name[0].upper()
 
 
+def pdbqt_heavy_atoms(block: str) -> List[Tuple[str, Tuple[float, float, float]]]:
+    """Heavy atoms in PDBQT file order: element and coordinates."""
+    atoms: List[Tuple[str, Tuple[float, float, float]]] = []
+    for line in block.splitlines():
+        if not line.startswith(("ATOM", "HETATM")):
+            continue
+        element = _infer_element(line[12:16], line)
+        if element.upper() == "H":
+            continue
+        try:
+            xyz = (float(line[30:38]), float(line[38:46]), float(line[46:54]))
+        except (IndexError, ValueError) as exc:
+            raise RuntimeError(f"Could not parse PDBQT atom line: {line.rstrip()}") from exc
+        atoms.append((element, xyz))
+    return atoms
+
+
+def heavy_index_in_pdbqt_order(mol: Chem.Mol, pdbqt_text: str) -> List[int]:
+    """RDKit heavy-atom index for each heavy atom in a PDBQT written from ``mol``.
+
+    Vina writes docked atoms in the same order as the input PDBQT. Matching the
+    undocked PDBQT coordinates back to the conformer gives the permutation that
+    later docked blocks must use.
+    """
+    pdbqt_atoms = pdbqt_heavy_atoms(pdbqt_text)
+    conf = mol.GetConformer()
+    unused = [
+        (atom.GetIdx(), atom.GetSymbol(), np.array(conf.GetAtomPosition(atom.GetIdx())))
+        for atom in mol.GetAtoms()
+        if atom.GetAtomicNum() > 1
+    ]
+    mapping: List[int] = []
+    for element, xyz in pdbqt_atoms:
+        target = np.array(xyz, dtype=float)
+        best_idx = None
+        best_distance = 1e9
+        for idx, symbol, coord in unused:
+            if symbol.upper() != element.upper():
+                continue
+            distance = float(np.linalg.norm(coord - target))
+            if distance < best_distance:
+                best_distance = distance
+                best_idx = idx
+        if best_idx is None or best_distance > 0.5:
+            raise RuntimeError(
+                "Could not match a PDBQT heavy atom back to the RDKit ligand "
+                f"({element} at {xyz}, closest {best_distance:.3f} A)"
+            )
+        mapping.append(best_idx)
+        unused = [item for item in unused if item[0] != best_idx]
+    if unused:
+        raise RuntimeError(f"PDBQT is missing {len(unused)} ligand heavy atoms")
+    return mapping
+
+
+def apply_pdbqt_heavy_coords(mol: Chem.Mol, block: str, heavy_index: Sequence[int]) -> Chem.Mol:
+    """Copy docked heavy-atom coordinates onto a hydrogenated RDKit molecule."""
+    pose = Chem.Mol(mol)
+    atoms = pdbqt_heavy_atoms(block)
+    if len(atoms) != len(heavy_index):
+        raise RuntimeError(
+            f"Docked PDBQT has {len(atoms)} heavy atoms; the ligand map has {len(heavy_index)}"
+        )
+    conf = pose.GetConformer()
+    for idx, (element, xyz) in zip(heavy_index, atoms):
+        symbol = pose.GetAtomWithIdx(idx).GetSymbol()
+        if symbol.upper() != element.upper():
+            raise RuntimeError(f"PDBQT element {element} does not match RDKit atom {symbol}")
+        conf.SetAtomPosition(idx, xyz)
+    return pose
+
+
 def pdbqt_block_to_ligand_pdb(block: str) -> str:
     """One Vina MODEL block -> HETATM-only ligand PDB text."""
     atom_lines: List[str] = []
@@ -374,11 +446,22 @@ def mol_to_ligand_pdb(mol: Chem.Mol) -> str:
     return "\n".join(lines) + "\n"
 
 
-def sd_record_to_ligand_pdb(record: str) -> str:
+def sd_record_to_mol(record: str) -> Chem.Mol:
+    """rDock SD record -> RDKit molecule, hydrogens and coordinates kept."""
     mol = Chem.MolFromMolBlock(molblock_for_rdkit(record), sanitize=False, removeHs=False)
-    if mol is None:
+    if mol is None or mol.GetNumConformers() == 0:
         raise RuntimeError("could not parse rDock SD record")
-    return mol_to_ligand_pdb(mol)
+    trial = Chem.Mol(mol)
+    try:
+        Chem.SanitizeMol(trial)
+    except Exception:
+        # rDock records are already 3D coordinates. OpenFF reports it if the chemistry is unusable.
+        return mol
+    return trial
+
+
+def sd_record_to_ligand_pdb(record: str) -> str:
+    return mol_to_ligand_pdb(sd_record_to_mol(record))
 
 
 def mol_to_sd(mol: Chem.Mol) -> str:
