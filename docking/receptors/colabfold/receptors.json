@@ -16,6 +16,102 @@
     "detected_ligand_resname": "0Q2",
     "detected_ligand_chain": "A",
     "detected_ligand_natoms": 20,
+    "water_source": "crystal_box",
+    "n_waters": 8,
+    "waters": [
+      {
+        "chain": "A",
+        "resseq": 1301,
+        "bfactor": 22.87,
+        "xyz": [
+          2.037,
+          50.95,
+          10.444
+        ]
+      },
+      {
+        "chain": "A",
+        "resseq": 1302,
+        "bfactor": 34.69,
+        "xyz": [
+          10.704,
+          66.687,
+          1.457
+        ]
+      },
+      {
+        "chain": "A",
+        "resseq": 1303,
+        "bfactor": 25.87,
+        "xyz": [
+          14.291,
+          50.956,
+          7.225
+        ]
+      },
+      {
+        "chain": "A",
+        "resseq": 1308,
+        "bfactor": 24.49,
+        "xyz": [
+          1.929,
+          67.038,
+          -1.696
+        ]
+      },
+      {
+        "chain": "A",
+        "resseq": 1312,
+        "bfactor": 38.5,
+        "xyz": [
+          11.421,
+          59.942,
+          -2.557
+        ]
+      },
+      {
+        "chain": "A",
+        "resseq": 1333,
+        "bfactor": 48.79,
+        "xyz": [
+          -0.115,
+          49.282,
+          3.555
+        ]
+      },
+      {
+        "chain": "A",
+        "resseq": 1339,
+        "bfactor": 43.35,
+        "xyz": [
+          -0.489,
+          53.987,
+          -6.108
+        ]
+      },
+      {
+        "chain": "A",
+        "resseq": 1358,
+        "bfactor": 37.71,
+        "xyz": [
+          -2.253,
+          63.172,
+          8.703
+        ]
+      }
+    ],
+    "waters_dropped_clash": [
+      {
+        "chain": "A",
+        "resseq": 1343,
+        "bfactor": 45.72,
+        "xyz": [
+          13.317,
+          48.537,
+          6.73
+        ]
+      }
+    ],
     "source": "colabfold",
     "crystal": "Crystal Structures/JAK1_4EI4.cif",
     "residue_numbering": "full_length",
@@ -46,6 +142,81 @@
     "detected_ligand_resname": "1M3",
     "detected_ligand_chain": "A",
     "detected_ligand_natoms": 36,
+    "water_source": "crystal_box",
+    "n_waters": 7,
+    "waters": [
+      {
+        "chain": "A",
+        "resseq": 1301,
+        "bfactor": 31.82,
+        "xyz": [
+          54.417,
+          12.558,
+          8.084
+        ]
+      },
+      {
+        "chain": "A",
+        "resseq": 1302,
+        "bfactor": 22.2,
+        "xyz": [
+          60.573,
+          8.22,
+          -0.139
+        ]
+      },
+      {
+        "chain": "A",
+        "resseq": 1307,
+        "bfactor": 23.1,
+        "xyz": [
+          62.235,
+          7.606,
+          -4.181
+        ]
+      },
+      {
+        "chain": "A",
+        "resseq": 1326,
+        "bfactor": 31.56,
+        "xyz": [
+          50.86,
+          11.533,
+          4.879
+        ]
+      },
+      {
+        "chain": "A",
+        "resseq": 1338,
+        "bfactor": 38.34,
+        "xyz": [
+          53.797,
+          10.087,
+          6.436
+        ]
+      },
+      {
+        "chain": "A",
+        "resseq": 1344,
+        "bfactor": 41.83,
+        "xyz": [
+          48.417,
+          15.139,
+          11.113
+        ]
+      },
+      {
+        "chain": "A",
+        "resseq": 1352,
+        "bfactor": 41.39,
+        "xyz": [
+          54.491,
+          17.788,
+          11.461
+        ]
+      }
+    ],
+    "waters_dropped_clash": [],
     "source": "colabfold",
     "crystal": "Crystal Structures/JAK2_4JI9.cif",
     "residue_numbering": "full_length",

@@ -2,15 +2,24 @@
 """
 Single-point MM/GBSA energies for poses the docking engines already kept.
 
-Heavy atoms stay at the docked coordinates. Hydrogens are relaxed in GBn2
-implicit solvent, then
-
     G = E(complex) - E(receptor) - E(ligand)
+
+Heavy atoms stay at the docked coordinates. Receptor hydrogens are relaxed
+once per worker and cached. Ligand hydrogens are relaxed on the free ligand,
+which is a small system. The complex energy is then one evaluation in GBn2
+at those coordinates, not a minimization of the whole kinase for every pose.
+
+OpenMM is pinned to the CPU platform. Thread count comes from
+``OPENMM_CPU_THREADS``, which the docking driver sets to one share of the
+machine per worker, so a process pool does not start an OpenCL context or
+oversubscribe the CPU.
 
 The receptor includes the explicit site waters written by
 ``prepare_receptors.py``. Phosphotyrosine is converted to tyrosine only in
 this copy, because the activation-loop sites sit well outside the docking
-box and ff14SB has no PTR template. Docking and PLIP still see PTR.
+box and ff14SB has no PTR template. Docking and PLIP still see PTR. The
+C-terminal residue gets an OXT atom in this copy too. ColabFold models omit
+it, and ff14SB will not treat the chain end as terminal without it.
 
 Ligand parameters are OpenFF Sage. Charges come from the production NAGL
 AM1-BCC model so AmberTools is not required. More negative G ranks first.
@@ -29,7 +38,10 @@ from typing import Dict, List, Sequence, Tuple
 import numpy as np
 from rdkit import Chem
 
-METHOD_ID = "openmm-gbn2-ff14sb-openff-sage-nagl"
+METHOD_ID = "openmm-gbn2-ff14sb-openff-sage-nagl-sp"
+# Finished jobs from the hydrogen-minimized complex protocol. Resume keeps
+# their scores instead of docking those compounds again.
+PREVIOUS_METHOD_ID = "openmm-gbn2-ff14sb-openff-sage-nagl"
 
 PROTEIN_FF = (
     "amber/protein.ff14SB.xml",
@@ -55,6 +67,12 @@ MAX_H_STEPS = 100
 _RECEPTOR_CACHE: Dict[Tuple[str, int, int], "PreparedReceptor"] = {}
 
 
+def cpu_threads_for_workers(workers: int) -> int:
+    """One share of the CPUs per docking worker. OpenMM then stays inside that share."""
+    cpus = os.cpu_count() or 1
+    return max(1, cpus // max(1, int(workers)))
+
+
 class PreparedReceptor:
     def __init__(self, topology, positions, energy: float):
         self.topology = topology
@@ -74,11 +92,11 @@ def mmgbsa_pose_energies(receptor_pdb: str, pose_mols: Sequence[Chem.Mol]) -> Li
     ligand_topology = _ligand_topology(poses[0])
     forcefield = _forcefield(ligand)
     ligand_system = _build_system(forcefield, ligand_topology)
-    ligand_context = _frozen_context(ligand_system, ligand_topology)
+    ligand_context = _context(ligand_system, ligand_topology)
 
     complex_topology, _ = _merge(receptor, ligand_topology, _conformer_nm(poses[0]))
     complex_system = _build_system(forcefield, complex_topology)
-    complex_context = _frozen_context(complex_system, complex_topology)
+    complex_context = _context(complex_system, complex_topology, freeze_heavy=False)
 
     energies: List[float] = []
     for pose in poses:
@@ -86,15 +104,99 @@ def mmgbsa_pose_energies(receptor_pdb: str, pose_mols: Sequence[Chem.Mol]) -> Li
         if ligand_nm.shape[0] != ligand_topology.getNumAtoms():
             raise RuntimeError("pose atom count does not match the ligand used to build the system")
         try:
-            _, complex_positions = _merge(receptor, ligand_topology, ligand_nm)
-            complex_energy = _minimized_energy(complex_context, complex_positions)
-            ligand_energy = _minimized_energy(ligand_context, _quantity(ligand_nm))
+            ligand_energy, ligand_positions = _minimized_state(ligand_context, _quantity(ligand_nm))
+            complex_energy = _potential_energy(
+                complex_context, _join_positions(receptor.positions, ligand_positions)
+            )
         except Exception:
             energies.append(float("nan"))
             continue
         value = complex_energy - receptor.energy - ligand_energy
         energies.append(value if math.isfinite(value) else float("nan"))
     return energies
+
+
+_WATER_NAMES = {"HOH", "WAT"}
+_OXT_BOND_A = 1.25
+
+
+def _pdb_xyz(line: str) -> np.ndarray:
+    return np.array([float(line[30:38]), float(line[38:46]), float(line[46:54])], dtype=float)
+
+
+def _oxt_coordinate(ca: np.ndarray, carbon: np.ndarray, oxygen: np.ndarray) -> np.ndarray:
+    """Place OXT in the carboxyl plane, 120 degrees from both CA and O."""
+    toward_ca = ca - carbon
+    toward_o = oxygen - carbon
+    toward_ca /= np.linalg.norm(toward_ca)
+    toward_o /= np.linalg.norm(toward_o)
+    direction = -(toward_ca + toward_o)
+    direction /= np.linalg.norm(direction)
+    return carbon + direction * _OXT_BOND_A
+
+
+def _format_oxt(template: str, serial: int, xyz: np.ndarray) -> str:
+    padded = f"{template:<80}"
+    x, y, z = (float(value) for value in xyz)
+    return (
+        f"ATOM  {serial:5d}  OXT{padded[16:30]}"
+        f"{x:8.3f}{y:8.3f}{z:8.3f}{padded[54:76]}O "
+    )
+
+
+def _add_c_terminal_oxt(pdb_text: str) -> str:
+    """Add a carboxyl OXT to the last protein residue of each chain."""
+    lines = pdb_text.splitlines()
+    atom_indexes = [i for i, line in enumerate(lines) if line.startswith(("ATOM", "HETATM"))]
+    groups: List[Tuple[Tuple[str, str, str], List[int]]] = []
+    current_key = None
+    current: List[int] = []
+    for index in atom_indexes:
+        line = lines[index]
+        key = (line[21], line[22:27], line[17:20])
+        if key != current_key:
+            if current:
+                groups.append((current_key, current))
+            current_key = key
+            current = [index]
+        else:
+            current.append(index)
+    if current:
+        groups.append((current_key, current))
+
+    last_by_chain: Dict[str, Tuple[Tuple[str, str, str], List[int]]] = {}
+    for key, indexes in groups:
+        if key[2].strip() in _WATER_NAMES:
+            continue
+        last_by_chain[key[0]] = (key, indexes)
+
+    next_serial = 1
+    for index in atom_indexes:
+        try:
+            next_serial = max(next_serial, int(lines[index][6:11]) + 1)
+        except ValueError:
+            continue
+
+    inserts: List[Tuple[int, str]] = []
+    for chain, (_key, indexes) in last_by_chain.items():
+        coords = {lines[index][12:16].strip(): _pdb_xyz(lines[index]) for index in indexes}
+        if "OXT" in coords:
+            continue
+        missing = [name for name in ("CA", "C", "O") if name not in coords]
+        if missing:
+            residue = lines[indexes[-1]][17:27].strip()
+            raise RuntimeError(
+                f"Chain {chain.strip() or '-'} residue {residue} is missing {', '.join(missing)}; cannot add OXT"
+            )
+        inserts.append((
+            indexes[-1],
+            _format_oxt(lines[indexes[-1]], next_serial, _oxt_coordinate(coords["CA"], coords["C"], coords["O"])),
+        ))
+        next_serial += 1
+
+    for after, line in sorted(inserts, reverse=True):
+        lines.insert(after + 1, line)
+    return "\n".join(lines) + ("\n" if pdb_text.endswith("\n") or lines else "")
 
 
 def _ensure_hydrogens(mol: Chem.Mol) -> Chem.Mol:
@@ -128,15 +230,13 @@ def _prepare_receptor(path: str) -> PreparedReceptor:
     import openmm.unit as unit
     from prepare_receptors import convert_ptr
 
-    text = convert_ptr(Path(path).read_text(), "tyr")
+    text = _add_c_terminal_oxt(convert_ptr(Path(path).read_text(), "tyr"))
     pdb = app.PDBFile(io.StringIO(text))
     forcefield = app.ForceField(*PROTEIN_FF)
     modeller = app.Modeller(pdb.topology, pdb.positions)
     modeller.addHydrogens(forcefield, pH=7.4)
     system = _build_system(forcefield, modeller.topology)
-    _freeze_heavy(system, modeller.topology)
-    integrator = openmm.VerletIntegrator(0.001 * unit.picoseconds)
-    context = openmm.Context(system, integrator)
+    context = _context(system, modeller.topology)
     context.setPositions(modeller.positions)
     openmm.LocalEnergyMinimizer.minimize(context, maxIterations=MAX_H_STEPS)
     state = context.getState(getEnergy=True, getPositions=True)
@@ -155,10 +255,15 @@ def _off_molecule(mol: Chem.Mol):
 
 
 def _assign_nagl_charges(molecule) -> str:
+    # openff-toolkit 0.16 does not register NAGL, so the .pt methods are invisible
+    # on the default registry even when openff-nagl-models is installed.
+    from openff.toolkit.utils.nagl_wrapper import NAGLToolkitWrapper
+
+    nagl = NAGLToolkitWrapper()
     errors = []
     for model in NAGL_MODELS:
         try:
-            molecule.assign_partial_charges(partial_charge_method=model)
+            molecule.assign_partial_charges(partial_charge_method=model, toolkit_registry=nagl)
             return model
         except Exception as exc:
             errors.append(f"{model}: {exc}")
@@ -279,20 +384,48 @@ def _freeze_heavy(system, topology) -> None:
             system.setParticleMass(atom.index, 0.0 * unit.dalton)
 
 
-def _frozen_context(system, topology):
+def _cpu_threads() -> str:
+    raw = os.environ.get("OPENMM_CPU_THREADS", "").strip()
+    if raw.isdigit() and int(raw) >= 1:
+        return raw
+    return "1"
+
+
+def _context(system, topology, freeze_heavy: bool = True):
+    """CPU context. The platform is explicit so OpenCL is never opened."""
     import openmm
     import openmm.unit as unit
 
-    _freeze_heavy(system, topology)
+    if freeze_heavy:
+        _freeze_heavy(system, topology)
+    platform = openmm.Platform.getPlatformByName("CPU")
     integrator = openmm.VerletIntegrator(0.001 * unit.picoseconds)
-    return openmm.Context(system, integrator)
+    return openmm.Context(system, integrator, platform, {"Threads": _cpu_threads()})
 
 
-def _minimized_energy(context, positions) -> float:
+def _minimized_state(context, positions):
+    """Relax hydrogens. Heavy atoms are frozen by a zero mass on this context."""
     import openmm
     import openmm.unit as unit
 
     context.setPositions(positions)
     openmm.LocalEnergyMinimizer.minimize(context, maxIterations=MAX_H_STEPS)
+    state = context.getState(getEnergy=True, getPositions=True)
+    energy = float(state.getPotentialEnergy().value_in_unit(unit.kilocalories_per_mole))
+    return energy, state.getPositions()
+
+
+def _potential_energy(context, positions) -> float:
+    import openmm.unit as unit
+
+    context.setPositions(positions)
     state = context.getState(getEnergy=True)
     return float(state.getPotentialEnergy().value_in_unit(unit.kilocalories_per_mole))
+
+
+def _join_positions(receptor_positions, ligand_positions):
+    import openmm.unit as unit
+
+    receptor_nm = list(receptor_positions.value_in_unit(unit.nanometer))
+    ligand_nm = list(ligand_positions.value_in_unit(unit.nanometer))
+    return unit.Quantity(receptor_nm + ligand_nm, unit.nanometer)

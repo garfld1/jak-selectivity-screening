@@ -15,18 +15,22 @@ rDock
     ``--rdock-runs`` docking runs (default 50), then a heavy-atom diversity
     filter at ``--rdock-cluster-rmsd`` keeping at most ``--num-poses`` poses.
 
-Each retained pose is rescored with MM/GBSA. More negative energy ranks
-first, which is the same direction as the engine scores. The engine score of
-that pose is what the tables still call ``vina_score`` or ``rdock_score``;
-``mmgbsa_score`` is the value that set the order. ``--skip-mmgbsa`` restores
-engine-score ordering. ``--num-poses`` sets how many poses are retained and so
-caps the interaction-frequency windows; ``--frequency-windows`` then chooses
-which windows get a table, by default the top 5 and the top 10.
+Each retained pose is rescored with MM/GBSA. Receptor and ligand hydrogens
+are relaxed, and the complex energy is a single evaluation. More negative
+energy ranks first, which is the same direction as the engine scores. The
+engine score of that pose is what the tables still call ``vina_score`` or
+``rdock_score``; ``mmgbsa_score`` is the value that set the order.
+``--skip-mmgbsa`` restores engine-score ordering. ``--num-poses`` sets how
+many poses are retained and so caps the interaction-frequency windows;
+``--frequency-windows`` then chooses which windows get a table, by default
+the top 5 and the top 10.
 
 A config-aware JSONL checkpoint keyed by (ligand_id, target, engine) makes
-runs resumable; only lines whose ``config_hash`` matches the current settings
-are reused. Tables are rebuilt in full from the checkpoint at the end of every
-run, so a resumed run still produces complete outputs.
+runs resumable. ``--resume`` reuses a finished job that already has an
+MM/GBSA score, including one scored by the previous hydrogen-minimization
+protocol, and retries failures. Tables are rebuilt in full from the
+checkpoint at the end of every run, so a resumed run still produces complete
+outputs.
 
 Run:
     python src/screening/jh1_dual_engine/dual_engine_docking.py \
@@ -57,9 +61,10 @@ import tqdm
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import plip_tables
-from mmgbsa import METHOD_ID
+from mmgbsa import METHOD_ID, PREVIOUS_METHOD_ID, cpu_threads_for_workers
 from docking_core import (
     apply_pdbqt_heavy_coords,
+    apply_sd_coords,
     dock_with_vina,
     generate_3d_conformer,
     heavy_index_in_pdbqt_order,
@@ -70,7 +75,6 @@ from docking_core import (
     rdkit_mol_to_pdbqt_text,
     run_rbdock,
     sd_record_to_ligand_pdb,
-    sd_record_to_mol,
     select_diverse,
     split_pdbqt_models,
     split_sd,
@@ -126,6 +130,7 @@ class DockJob:
     rdock_cluster_rmsd: float
     rdock_timeout: int
     config_hash: str
+    openmm_threads: int = 1
     skip_mmgbsa: bool = False
     pose_dir: Optional[str] = None
 
@@ -403,7 +408,7 @@ def dock_rdock(job: DockJob, mol, workdir: Path) -> Tuple[List[Tuple[float, Opti
     for i, (score, record) in enumerate(kept):
         try:
             features = plip_features(protein, sd_record_to_ligand_pdb(record), workdir, f"rdock_{i}")
-            pose_mol = sd_record_to_mol(record)
+            pose_mol = apply_sd_coords(mol, record)
         except Exception as exc:
             last_error = exc
             continue
@@ -419,6 +424,8 @@ def dock_rdock(job: DockJob, mol, workdir: Path) -> Tuple[List[Tuple[float, Opti
 
 
 def run_job(job: DockJob) -> dict:
+    os.environ["OPENMM_DEFAULT_PLATFORM"] = "CPU"
+    os.environ["OPENMM_CPU_THREADS"] = str(max(1, job.openmm_threads))
     record = {
         "ligand_id": job.ligand_id,
         "smiles": job.smiles,
@@ -450,6 +457,7 @@ def run_job(job: DockJob) -> dict:
                 "mmgbsa_pose_scores": [score for score in mmgbsa_scores if score is not None],
                 "pose_features": [features for _score, _mmgbsa, features in poses],
                 "pose_archive": archive,
+                "mmgbsa_protocol": None if job.skip_mmgbsa else METHOD_ID,
                 "error": None,
             }
         )
@@ -474,6 +482,35 @@ def run_job(job: DockJob) -> dict:
 
 def checkpoint_key(record: dict) -> Tuple[str, str, str]:
     return (str(record["ligand_id"]), str(record["target"]), str(record["engine"]))
+
+
+def _finite_mmgbsa(value) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def adopt_scored_successes(path: Path, config_hash: str) -> int:
+    """Keep finished MM/GBSA jobs when the scoring protocol changes.
+
+    A success with a finite ``mmgbsa_score`` is re-stamped with the current
+    hash so ``--resume`` does not dock that compound again. Failures are left
+    alone and get retried. A dry-run success has no MM/GBSA score, so it is
+    not carried into a wet run.
+    """
+    if not path.exists():
+        return 0
+    successes, _ = plip_tables.read_checkpoint(path)
+    adopted = 0
+    for record in successes:
+        if record.get("config_hash") == config_hash:
+            continue
+        if not _finite_mmgbsa(record.get("mmgbsa_score")):
+            continue
+        cloned = dict(record)
+        cloned["config_hash"] = config_hash
+        cloned["mmgbsa_protocol"] = record.get("mmgbsa_protocol") or PREVIOUS_METHOD_ID
+        append_checkpoint(path, cloned)
+        adopted += 1
+    return adopted
 
 
 def load_successes(path: Path, config_hash: str) -> Dict[Tuple[str, str, str], dict]:
@@ -516,7 +553,11 @@ def _water_identity(receptors: Dict[str, dict]) -> Dict[str, list]:
 
 
 def config_hash(args: argparse.Namespace, receptors: Dict[str, dict]) -> str:
-    mmgbsa = None if args.skip_mmgbsa else {"method": METHOD_ID, "hydrogen_minimize": True}
+    mmgbsa = None if args.skip_mmgbsa else {
+        "method": METHOD_ID,
+        "hydrogen_minimize": "receptor-and-ligand",
+        "complex_evaluation": "single_point",
+    }
     payload = {
         "version": CONFIG_VERSION,
         "input": str(Path(args.input).expanduser().resolve()),
@@ -590,6 +631,7 @@ def build_jobs(
                         rdock_cluster_rmsd=args.rdock_cluster_rmsd,
                         rdock_timeout=args.rdock_timeout,
                         config_hash=cfg_hash,
+                        openmm_threads=args.openmm_threads,
                         skip_mmgbsa=args.skip_mmgbsa,
                         pose_dir=str(pose_dir) if pose_dir is not None else None,
                     )
@@ -703,13 +745,24 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             f"{checkpoint} already exists. Pass --resume to continue that run, "
             "or choose a new --outdir."
         )
+    adopted = adopt_scored_successes(checkpoint, cfg_hash) if args.resume else 0
     done = load_successes(checkpoint, cfg_hash) if args.resume else {}
+    if adopted:
+        print(f"Keeping {adopted} finished MM/GBSA jobs from the previous protocol.")
     if done:
-        print(f"Resuming: {len(done)} matching-config successes already checkpointed.")
+        print(f"Resuming: {len(done)} successes already checkpointed.")
+
+    openmm_threads = cpu_threads_for_workers(args.workers)
+    args.openmm_threads = openmm_threads
+    os.environ["OPENMM_DEFAULT_PLATFORM"] = "CPU"
+    os.environ["OPENMM_CPU_THREADS"] = str(openmm_threads)
 
     jobs = build_jobs(ligands, receptors, args, carry_cols, cfg_hash, done, pose_dir)
     total = len(ligands) * len(args.targets) * len(args.engines)
-    print(f"Running {len(jobs)} of {total} ligand/target/engine jobs with {args.workers} worker(s).")
+    print(
+        f"Running {len(jobs)} of {total} ligand/target/engine jobs "
+        f"with {args.workers} worker(s), {openmm_threads} OpenMM thread(s) each."
+    )
 
     def accept(record: dict) -> None:
         append_checkpoint(checkpoint, record)
@@ -774,6 +827,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "rdock_protocol": RDOCK_PROTOCOL,
         "saved_poses": bool(args.save_poses),
         "mmgbsa": None if args.skip_mmgbsa else METHOD_ID,
+        "mmgbsa_reused_previous_protocol": adopted,
+        "openmm_platform": None if args.skip_mmgbsa else "CPU",
+        "openmm_threads_per_worker": None if args.skip_mmgbsa else openmm_threads,
         "waters": _water_identity(receptors),
         "n_successful_jobs": len(successes),
         "n_failed_jobs": len(failures),

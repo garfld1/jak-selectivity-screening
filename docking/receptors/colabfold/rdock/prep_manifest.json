@@ -13,10 +13,10 @@
     "radius": 10.0,
     "mapper": "RbtSphereSiteMapper",
     "rbcavity_volume_lines": [
-      "Total volume 959.875 A^3",
-      "Cavity #1\tSize=7679 points; Vol=959.875 A^3; Min=(-2,48,-7); Max=(16,65,10.5); Center=(7.35057,55.8621,0.919651); Extent=(18,17,17.5)"
+      "Total volume 935.25 A^3",
+      "Cavity #1\tSize=7482 points; Vol=935.25 A^3; Min=(-2,48,-7); Max=(16,65,10.5); Center=(7.2373,55.7498,1.02192); Extent=(18,17,17.5)"
     ],
-    "n_rbcavity_warnings": 1
+    "n_rbcavity_warnings": 88
   },
   {
     "target": "JAK2",
@@ -32,9 +32,9 @@
     "radius": 10.0,
     "mapper": "RbtSphereSiteMapper",
     "rbcavity_volume_lines": [
-      "Total volume 1128.25 A^3",
-      "Cavity #1\tSize=9026 points; Vol=1128.25 A^3; Min=(48.5,1,-4); Max=(65,17,13.5); Center=(56.5781,8.92045,4.41873); Extent=(16.5,16,17.5)"
+      "Total volume 1017.12 A^3",
+      "Cavity #1\tSize=8137 points; Vol=1017.12 A^3; Min=(50,1,-4); Max=(65.5,17,13.5); Center=(56.8175,8.74997,4.45287); Extent=(15.5,16,17.5)"
     ],
-    "n_rbcavity_warnings": 1
+    "n_rbcavity_warnings": 57
   }
 ]

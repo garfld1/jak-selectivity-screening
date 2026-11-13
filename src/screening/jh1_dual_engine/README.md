@@ -74,17 +74,21 @@ One job per (ligand, target, engine). Vina exhaustiveness is customizable via
 50) and then a heavy-atom diversity filter at `--rdock-cluster-rmsd` keeps at
 most `--num-poses` poses. That selection is unchanged. Each retained pose is
 then rescored with a single-point MM/GBSA energy (Amber ff14SB, TIP3P site
-waters, OpenFF Sage with NAGL charges, GBn2 implicit solvent). Hydrogens are
-relaxed and heavy atoms stay at the docked coordinates. More negative energy
-ranks first. PLIP still runs on the docked coordinates, with the site waters
-left in the complex, so a bridge is recorded on the protein residue it
-connects, for example `GLU966:water_bridge`. `--skip-mmgbsa` ranks by the
-engine score instead.
+waters, OpenFF Sage with NAGL charges, GBn2 implicit solvent). Receptor
+hydrogens are relaxed once, ligand hydrogens are relaxed on the free ligand,
+and the complex energy is a single evaluation. Heavy atoms stay at the docked
+coordinates. OpenMM uses the CPU platform, with its threads split across the
+worker pool. More negative energy ranks first. PLIP still runs on the docked
+coordinates, with the site waters left in the complex, so a bridge is recorded
+on the protein residue it connects, for example `GLU966:water_bridge`.
+`--skip-mmgbsa` ranks by the engine score instead.
 
 Existing receptor files do not contain these waters. Re-run
 `prepare_receptors.py` (or `FORCE_PREP=1` on the COCONUT wrapper) before a
 production docking run. The checkpoint hash includes the water list and the
-MM/GBSA settings, so a dry run is not resumed into a wet one.
+MM/GBSA settings, so a dry run is not resumed into a wet one. A finished job
+that already has an MM/GBSA score is kept when the scoring protocol changes;
+failures are retried.
 
 `--num-poses` (default 10) caps how many poses the frequency tables can
 aggregate, and `--frequency-windows` (default `5 10`) picks which windows get

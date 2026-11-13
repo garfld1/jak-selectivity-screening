@@ -26,7 +26,7 @@ cd "$REPO_ROOT"
 
 # The base miniforge interpreter has no biopython; jak_docking has the full stack.
 PY="${PY:-$HOME/miniforge3/envs/${CONDA_ENV:-jak_docking}/bin/python}"
-INPUT="${INPUT:-results/coconut_screen/top_1pct_coconut.csv}"
+INPUT="${INPUT:-results/docking/coconut/top_1pct_coconut.csv}"
 RECEPTOR_DIR="${RECEPTOR_DIR:-docking/receptors}"
 RECEPTORS="$RECEPTOR_DIR/colabfold/receptors.json"
 WORKERS="${WORKERS:-8}"

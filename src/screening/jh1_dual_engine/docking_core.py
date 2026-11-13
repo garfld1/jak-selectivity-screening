@@ -447,7 +447,11 @@ def mol_to_ligand_pdb(mol: Chem.Mol) -> str:
 
 
 def sd_record_to_mol(record: str) -> Chem.Mol:
-    """rDock SD record -> RDKit molecule, hydrogens and coordinates kept."""
+    """rDock SD record -> RDKit molecule, hydrogens and coordinates kept.
+
+    Bond orders in the rDock block are not trusted. Callers that need the
+    original chemistry, including MM/GBSA, should use ``apply_sd_coords``.
+    """
     mol = Chem.MolFromMolBlock(molblock_for_rdkit(record), sanitize=False, removeHs=False)
     if mol is None or mol.GetNumConformers() == 0:
         raise RuntimeError("could not parse rDock SD record")
@@ -455,9 +459,39 @@ def sd_record_to_mol(record: str) -> Chem.Mol:
     try:
         Chem.SanitizeMol(trial)
     except Exception:
-        # rDock records are already 3D coordinates. OpenFF reports it if the chemistry is unusable.
         return mol
     return trial
+
+
+def apply_sd_coords(mol: Chem.Mol, record: str) -> Chem.Mol:
+    """Copy an rDock pose onto the original RDKit molecule.
+
+    rDock writes atoms in the input SD order, which is the RDKit order, but it
+    often damages bond orders. Rebuilding the molecule from that block makes
+    OpenFF report ordinary atoms as radicals. The SMILES molecule keeps the
+    chemistry; only coordinates move.
+    """
+    docked = sd_record_to_mol(record)
+    pose = Chem.Mol(mol)
+    src = docked.GetConformer()
+    dst = pose.GetConformer()
+
+    def paired(heavy_only: bool):
+        src_atoms = [atom for atom in docked.GetAtoms() if not heavy_only or atom.GetAtomicNum() > 1]
+        dst_atoms = [atom for atom in pose.GetAtoms() if not heavy_only or atom.GetAtomicNum() > 1]
+        if len(src_atoms) != len(dst_atoms):
+            return None
+        if any(a.GetSymbol() != b.GetSymbol() for a, b in zip(src_atoms, dst_atoms)):
+            return None
+        return list(zip(src_atoms, dst_atoms))
+
+    pairs = paired(False) or paired(True)
+    if pairs is None:
+        raise RuntimeError("rDock atom order does not match the RDKit ligand")
+    for src_atom, dst_atom in pairs:
+        pos = src.GetAtomPosition(src_atom.GetIdx())
+        dst.SetAtomPosition(dst_atom.GetIdx(), (pos.x, pos.y, pos.z))
+    return pose
 
 
 def sd_record_to_ligand_pdb(record: str) -> str:
